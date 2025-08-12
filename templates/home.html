@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}EcoImpact • Simulador COP30 Pará{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-inner">
+    <h1>
+      EcoImpact
+      <span class="badge">COP30 • Pará</span>
+    </h1>
+    <p class="lead">Simule o potencial de movimentação financeira gerado pela chegada de turistas no Pará durante a COP30.</p>
+    <a href="#simulador" class="cta">Começar simulação</a>
+  </div>
+  <div class="hero-bg" aria-hidden="true"></div>
+</section>
+
+<section id="simulador" class="simulator container">
+  <div class="panel inputs">
+    <h2>Parâmetros</h2>
+    <div class="field">
+      <label for="turistas">Nº de turistas</label>
+      <input type="range" id="turistas" min="1000" max="500000" step="1000" value="50000">
+      <div class="hint"><span id="turistasValue">50.000</span></div>
+    </div>
+    <div class="field">
+      <label for="gasto">Gasto médio por dia (R$)</label>
+      <input type="range" id="gasto" min="50" max="2000" step="10" value="350">
+      <div class="hint">R$ <span id="gastoValue">350</span></div>
+    </div>
+    <div class="field">
+      <label for="dias">Duração da estadia (dias)</label>
+      <input type="range" id="dias" min="1" max="20" step="1" value="5">
+      <div class="hint"><span id="diasValue">5</span> dia(s)</div>
+    </div>
+
+    <div class="field">
+      <label>Cidades visitadas</label>
+      <div class="chips" id="cidades">
+        <button class="chip selected" data-name="Belém" data-multiplier="1.0">Belém</button>
+        <button class="chip" data-name="Santarém" data-multiplier="0.9">Santarém</button>
+        <button class="chip" data-name="Alter do Chão" data-multiplier="1.2">Alter do Chão</button>
+        <button class="chip" data-name="Marajó" data-multiplier="1.1">Marajó</button>
+        <button class="chip" data-name="Salinópolis" data-multiplier="0.95">Salinópolis</button>
+      </div>
+      <p class="subhint">Dica: clique para selecionar/deselecionar; cada cidade ajusta o gasto médio.</p>
+    </div>
+
+    <div class="field inline">
+      <button id="reset" class="ghost">Redefinir</button>
+      <button id="simular" class="primary">Simular</button>
+    </div>
+  </div>
+
+  <div class="panel results">
+    <h2>Resultados</h2>
+    <div class="kpis">
+      <div class="kpi">
+        <span class="kpi-label">Movimentação total</span>
+        <span id="total" class="kpi-value">R$ 0</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Gasto agregado/dia</span>
+        <span id="aggDia" class="kpi-value">R$ 0</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Cidades</span>
+        <span id="cidadesSel" class="kpi-value">Belém</span>
+      </div>
+    </div>
+
+    <div class="chart">
+      <canvas id="chart"></canvas>
+    </div>
+
+    <details class="explain">
+      <summary>Como calculamos?</summary>
+      <p>Fórmula base: turistas × gasto_médio × dias × fator_cidades.</p>
+      <p>O fator de cidades é a média dos multiplicadores das cidades selecionadas.</p>
+    </details>
+  </div>
+</section>
+
+<section class="about container">
+  <h2>Sobre o EcoImpact</h2>
+  <p>Plataforma acadêmica construída em Django para explorar cenários econômicos da COP30 no Pará. O simulador é simples, rápido e visual, ajudando gestores, pesquisadores e a sociedade a compreender possibilidades de movimentação financeira.</p>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}
