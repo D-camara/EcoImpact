@@ -1,22 +1,23 @@
-<!-- Template base para o EcoImpact -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}EcoImpact{% endblock %}</title>
-        {% block head %}{% endblock %}
-    </head>
-    <body>
-        <header>
-            <h1>EcoImpact</h1>
-        </header>
-        <main>
-            {% block content %}
-            <!-- Conteúdo principal -->
-            {% endblock %}
-        </main>
-        <footer>
-            <p>Projeto EcoImpact - Faculdade</p>
-        </footer>
-    </body>
-    </html>
+    <meta charset="UTF-8">
+    <title>{% block title %}EcoImpact{% endblock %}</title>
+    {% block head %}{% endblock %}
+    <link rel="stylesheet" type="text/css" href="{% static 'stilo.css' %}">
+</head>
+<body>
+    <header>
+        <h1>EcoImpact</h1>
+    </header>
+    <main>
+        {% block content %}
+        
+        {% endblock %}
+    </main>
+    <footer>
+        <p1>Projeto EcoImpact - Faculdade</p1>
+    </footer>
+</body>
+</html>
