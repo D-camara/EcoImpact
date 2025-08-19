@@ -1,3 +1,4 @@
+
 """
 URL configuration for ecoimpact project.
 
@@ -23,3 +24,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
 ]
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('impacto/', views.impacto_view, name='impacto'),
+] #use isso {% url 'impacto' %} quando for linkar na página HTML
