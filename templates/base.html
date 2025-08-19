@@ -7,8 +7,14 @@
         {% block head %}{% endblock %}
     </head>
     <body>
-        <header>
-            <h1>EcoImpact</h1>
+        <header class="topbar">
+            <div class="container row space-between">
+                <div class="logo"><a href="{% url 'home' %}">EcoImpact</a></div>
+                <nav>
+                    <a href="{% url 'simular' %}" class="btn-nav">Nova Simulação</a>
+                    <a href="{% url 'ultimo_resultado' %}" class="btn-nav">Último Resultado</a>
+                </nav>
+            </div>
         </header>
         <main>
             {% block content %}

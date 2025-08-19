@@ -4,8 +4,8 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:sy
 .container{max-width:960px;margin:0 auto;padding:1rem}
 .topbar{background:#fff;border-bottom:1px solid #e5e7eb}
 .topbar .logo a{text-decoration:none;color:var(--fg)}
-.topbar nav a{margin-left:1rem;text-decoration:none;color:var(--muted)}
-.topbar nav a:hover{color:var(--accent)}
+.topbar nav a{margin-left:.75rem;text-decoration:none;color:#fff;background:var(--accent);padding:.5rem .9rem;border-radius:4px;font-size:.9rem;display:inline-block}
+.topbar nav a:hover{filter:brightness(.92);color:#fff}
 .row{display:flex;align-items:center}
 .space-between{justify-content:space-between}
 .footer{border-top:1px solid #e5e7eb;background:#fff;margin-top:2rem;padding:.5rem 0;color:var(--muted)}

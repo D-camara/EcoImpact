@@ -1,7 +1,45 @@
 {% extends 'base.html' %}
 {% block title %}Resultado - EcoImpact{% endblock %}
 {% block content %}
-<h2>Resultado da Simulação (scaffold)</h2>
-<p>TODO: Renderizar resultados e gráficos aqui.</p>
+<h2>Resultado da Simulação</h2>
+{% if resultado %}
+	<h3>Resumo</h3>
+	<ul>
+		<li>Gasto Bruto: R$ {{ resultado.summary.gross_spend|floatformat:2 }}</li>
+		<li>Gasto Líquido após leakage cidades: R$ {{ resultado.summary.net_spend_after_city_leakage|floatformat:2 }}</li>
+		<li>Leakage Global: R$ {{ resultado.summary.global_leakage_amount|floatformat:2 }}</li>
+		<li>Gasto Líquido Final: R$ {{ resultado.summary.net_spend_after_global_leakage|floatformat:2 }}</li>
+		<li>Taxa de Retenção Efetiva: {{ resultado.summary.retention_rate_effective|floatformat:4 }}</li>
+	</ul>
+	<h3>Detalhe por Cidade</h3>
+	<table border="1" cellpadding="4">
+		<thead>
+			<tr>
+				<th>Cidade</th>
+				<th>Share</th>
+				<th>Tourist-Days</th>
+				<th>Gasto Diário Ajustado</th>
+				<th>Gasto Bruto</th>
+				<th>Leakage Cidade</th>
+				<th>Gasto Líquido</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for c in resultado.cities %}
+			<tr>
+				<td>{{ c.city }}</td>
+				<td>{{ c.weight_share|floatformat:3 }}</td>
+				<td>{{ c.tourist_days|floatformat:2 }}</td>
+				<td>R$ {{ c.adjusted_daily_spend|floatformat:2 }}</td>
+				<td>R$ {{ c.gross_spend|floatformat:2 }}</td>
+				<td>R$ {{ c.leakage_amount_city|floatformat:2 }} ({{ c.leakage_rate_city|floatformat:2 }})</td>
+				<td>R$ {{ c.net_spend_after_city_leakage|floatformat:2 }}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+{% else %}
+	<p>Relatório não disponível.</p>
+{% endif %}
 <p><a href="{% url 'simular' %}">Nova simulação</a></p>
 {% endblock %}
