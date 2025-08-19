@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Simulação - EcoImpact{% endblock %}
+{% block content %}
+<h2>Nova Simulação (scaffold)</h2>
+<p>Preencha os campos e implemente o POST no view para processar.</p>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Simular</button>
+  <p><em>TODO: ao submeter, calcular e redirecionar para resultados.</em></p>
+</form>
+{% endblock %}
