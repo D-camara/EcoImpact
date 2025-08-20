@@ -11,9 +11,10 @@ from decimal import Decimal
 
 
 class Cidade(models.Model):
-    nome = models.CharField(max_length=500000, unique=True)
-    estado = models.CharField(max_length=500000, default='PA')
-    pais = models.CharField(max_length=500000, default='Brasil')
+    # Tamanhos realistas
+    nome = models.CharField(max_length=120, unique=True)
+    estado = models.CharField(max_length=50, default='PA')
+    pais = models.CharField(max_length=50, default='Brasil')
     populacao = models.PositiveIntegerField()
     pib_per_capita = models.DecimalField(max_digits=12, decimal_places=2)
     area_km2 = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -66,9 +67,9 @@ class Cidade(models.Model):
 
 
 class Turista(models.Model):
-    nome = models.CharField(max_length=500000)
-    email = models.EmailField(max_length=500000, validators=[EmailValidator()])
-    telefone = models.CharField(max_length=500000, blank=True)
+    nome = models.CharField(max_length=150)
+    email = models.EmailField(max_length=254, validators=[EmailValidator()])
+    telefone = models.CharField(max_length=20, blank=True)
     idade = models.PositiveIntegerField(null=True, blank=True)
     cidade_origem = models.ForeignKey(
         Cidade, 
@@ -82,7 +83,7 @@ class Turista(models.Model):
     
     # Campos específicos para sustentabilidade e COP 30
     interesse_sustentabilidade = models.CharField(
-        max_length=500000,
+        max_length=20,
         choices=[
             ('baixo', 'Baixo'),
             ('medio', 'Médio'),
@@ -92,7 +93,7 @@ class Turista(models.Model):
         help_text="Nível de interesse em turismo sustentável"
     )
     preferencia_transporte = models.CharField(
-        max_length=500000,
+        max_length=30,
         choices=[
             ('publico', 'Transporte Público'),
             ('bicicleta', 'Bicicleta'),
@@ -134,7 +135,7 @@ class Simulacao(models.Model):
     orcamento = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     parametros = models.JSONField(default=dict, blank=True)
     status = models.CharField(
-        max_length=500000,
+        max_length=20,
         choices=[
             ('pendente', 'Pendente'),
             ('processando', 'Processando'),
@@ -147,7 +148,7 @@ class Simulacao(models.Model):
     
     # Campo cenario com choices
     cenario = models.CharField(
-        max_length=500000,
+        max_length=20,
         choices=[
             ('conservador', 'Conservador'),
             ('realista', 'Realista'),
@@ -156,10 +157,14 @@ class Simulacao(models.Model):
         default='realista',
         help_text="Cenário de simulação"
     )
+
+    # Campos estruturados principais da simulação econômica
+    numero_turistas = models.PositiveIntegerField(default=1, help_text="Quantidade de turistas no cenário")
+    gasto_medio = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Gasto médio por turista por dia (R$)")
     
     # Campos específicos para impacto ambiental e COP 30
     tipo_hospedagem = models.CharField(
-        max_length=500000,
+        max_length=30,
         choices=[
             ('hotel_sustentavel', 'Hotel Sustentável'),
             ('hotel_convencional', 'Hotel Convencional'),
@@ -171,7 +176,7 @@ class Simulacao(models.Model):
         blank=True
     )
     meio_transporte_principal = models.CharField(
-        max_length=500000,
+        max_length=30,
         choices=[
             ('aviao', 'Avião'),
             ('onibus', 'Ônibus'),
@@ -201,9 +206,31 @@ class Simulacao(models.Model):
         return f"Simulação {self.id} - {turista_nome} para {self.cidade.nome}"
     
     def save(self, *args, **kwargs):
-        # Converter valores para Decimal antes de salvar
+        # Converter valores monetários para Decimal
         if self.orcamento is not None:
             self.orcamento = Decimal(str(self.orcamento))
+
+        # Popular campos estruturados a partir de parametros (backfill transicional)
+        if self.parametros:
+            p = self.parametros
+            # número de turistas
+            if 'numero_turistas' in p and (not self.numero_turistas or self.numero_turistas == 1):
+                try:
+                    self.numero_turistas = int(p['numero_turistas'])
+                except (ValueError, TypeError):
+                    pass
+            # gasto médio
+            if 'gasto_medio' in p and self.gasto_medio is None:
+                try:
+                    self.gasto_medio = Decimal(str(p['gasto_medio']))
+                except (ValueError, TypeError):
+                    pass
+            # cenário
+            if 'cenario' in p and self.cenario == 'realista':
+                c = str(p['cenario']).lower()
+                if c in ['conservador', 'realista', 'otimista']:
+                    self.cenario = c
+
         super().save(*args, **kwargs)
 
 
