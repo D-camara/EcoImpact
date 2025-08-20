@@ -277,7 +277,7 @@ class TestIntegracaoModels(TestCase):
         simulacao = Simulacao.objects.create(
             turista=turista,
             cidade=cidade,
-            duracao_dias=5,
+            duracao_estadia=5,
             parametros={
                 'numero_turistas': 10,
                 'gasto_medio': 200,

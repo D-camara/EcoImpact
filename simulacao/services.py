@@ -178,10 +178,10 @@ def gerar_relatorio(simulacao):
             parametros['numero_turistas'] = 1
         
         if 'gasto_medio' not in parametros:
-            parametros['gasto_medio'] = simulacao.orcamento / simulacao.duracao_dias if simulacao.orcamento else 200.0
+            parametros['gasto_medio'] = simulacao.orcamento / simulacao.duracao_estadia if simulacao.orcamento and simulacao.duracao_estadia else 200.0
         
         if 'duracao_estadia' not in parametros:
-            parametros['duracao_estadia'] = simulacao.duracao_dias
+            parametros['duracao_estadia'] = simulacao.duracao_estadia
         
         if 'cidades_visitadas' not in parametros:
             parametros['cidades_visitadas'] = [simulacao.cidade.nome]
@@ -235,9 +235,9 @@ def _calcular_pontuacao_sustentabilidade(simulacao, resultado_calculo):
     elif simulacao.meio_transporte_principal == 'aviao':
         pontuacao -= 15
     
-    if simulacao.duracao_dias > 10:
+    if simulacao.duracao_estadia > 10:
         pontuacao -= 5
-    elif simulacao.duracao_dias <= 3:
+    elif simulacao.duracao_estadia <= 3:
         pontuacao += 5
     
     num_cidades = len(resultado_calculo.get('cidades_visitadas', [simulacao.cidade.nome]))
@@ -278,7 +278,7 @@ def _gerar_recomendacoes(simulacao, resultado_calculo):
     if not simulacao.compensacao_carbono:
         recomendacoes.append("Considere programas de compensação de carbono para neutralizar emissões.")
     
-    if simulacao.meio_transporte_principal == 'aviao' and simulacao.duracao_dias < 5:
+    if simulacao.meio_transporte_principal == 'aviao' and simulacao.duracao_estadia < 5:
         recomendacoes.append("Para viagens curtas, considere transportes alternativos com menor pegada de carbono.")
     
     if simulacao.tipo_hospedagem == 'hotel_convencional':
@@ -293,7 +293,7 @@ def _gerar_alternativas_sustentaveis(simulacao):
     if simulacao.meio_transporte_principal not in ['onibus', 'trem']:
         alternativas.append("Utilize transporte público ou compartilhado sempre que possível.")
     
-    if simulacao.duracao_dias > 7:
+    if simulacao.duracao_estadia > 7:
         alternativas.append("Considere estadias mais curtas com foco em experiências locais intensas.")
     
     alternativas.append("Explore a gastronomia local para apoiar produtores regionais.")

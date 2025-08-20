@@ -8,6 +8,7 @@ from __future__ import annotations
 from django.db import models
 from django.core.validators import EmailValidator, MinValueValidator, MaxValueValidator
 from decimal import Decimal
+from datetime import timedelta
 
 
 class Cidade(models.Model):
@@ -68,7 +69,7 @@ class Cidade(models.Model):
 
 class Turista(models.Model):
     nome = models.CharField(max_length=150)
-    email = models.EmailField(max_length=254, validators=[EmailValidator()])
+    email = models.EmailField(max_length=254, validators=[EmailValidator()], unique=True)
     telefone = models.CharField(max_length=20, blank=True)
     idade = models.PositiveIntegerField(null=True, blank=True)
     cidade_origem = models.ForeignKey(
@@ -131,7 +132,8 @@ class Simulacao(models.Model):
     )
     data_criacao = models.DateTimeField(auto_now_add=True)
     data_viagem = models.DateField(null=True, blank=True)
-    duracao_dias = models.PositiveIntegerField(default=1)
+    duracao_estadia = models.PositiveIntegerField(default=1, help_text="Duração da estadia em dias")
+    data_fim = models.DateField(null=True, blank=True, help_text="Data final calculada")
     orcamento = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     parametros = models.JSONField(default=dict, blank=True)
     status = models.CharField(
@@ -226,12 +228,40 @@ class Simulacao(models.Model):
                 except (ValueError, TypeError):
                     pass
             # cenário
-            if 'cenario' in p and self.cenario == 'realista':
+            if 'cenario' in p:
                 c = str(p['cenario']).lower()
-                if c in ['conservador', 'realista', 'otimista']:
+                if c in ['conservador', 'realista', 'otimista'] and c != self.cenario:
                     self.cenario = c
+            # duração unificada
+            if 'duracao_estadia' in p and self.duracao_estadia == 1:
+                try:
+                    self.duracao_estadia = int(p['duracao_estadia'])
+                except (ValueError, TypeError):
+                    pass
+
+        # Calcular data_fim
+        if self.data_viagem and self.duracao_estadia:
+            try:
+                self.data_fim = self.data_viagem + timedelta(days=self.duracao_estadia - 1)
+            except Exception:
+                pass
 
         super().save(*args, **kwargs)
+
+        # Criar registros de itinerário, se fornecido e ainda não existente
+        if self.parametros and isinstance(self.parametros, dict):
+            cidades_lista = self.parametros.get('cidades_visitadas')
+            if cidades_lista and isinstance(cidades_lista, list):
+                # Evitar duplicar
+                if not Itinerario.objects.filter(simulacao=self).exists():
+                    ordem = 1
+                    for nome_cidade in cidades_lista:
+                        try:
+                            cid = Cidade.objects.get(nome=nome_cidade)
+                        except Cidade.DoesNotExist:
+                            continue
+                        Itinerario.objects.create(simulacao=self, cidade=cid, ordem=ordem)
+                        ordem += 1
 
 
 class Relatorio(models.Model):
@@ -312,3 +342,17 @@ class Relatorio(models.Model):
 
     def __str__(self) -> str:
         return f"Relatório da Simulação {self.simulacao.id}"
+
+
+class Itinerario(models.Model):
+    simulacao = models.ForeignKey(Simulacao, on_delete=models.CASCADE, related_name="itinerarios")
+    cidade = models.ForeignKey(Cidade, on_delete=models.CASCADE, related_name="itinerarios")
+    ordem = models.PositiveSmallIntegerField(default=1)
+    dias = models.PositiveIntegerField(null=True, blank=True, help_text="Quantidade de dias nesta cidade")
+
+    class Meta:
+        ordering = ["simulacao", "ordem"]
+        unique_together = ("simulacao", "cidade", "ordem")
+
+    def __str__(self) -> str:
+        return f"Itinerário {self.simulacao_id} #{self.ordem} - {self.cidade.nome}"

@@ -50,16 +50,16 @@ class TuristaAdmin(admin.ModelAdmin):
 
 @admin.register(Simulacao)
 class SimulacaoAdmin(admin.ModelAdmin):
-    list_display = ("id", "turista", "cidade", "data_criacao", "status", "duracao_dias", "atividades_sustentaveis")
-    list_filter = ("status", "cidade", "data_criacao", "atividades_sustentaveis", "compensacao_carbono")
+    list_display = ("id", "turista", "cidade", "data_criacao", "status", "duracao_estadia", "data_fim", "numero_turistas", "gasto_medio", "atividades_sustentaveis")
+    list_filter = ("status", "cidade", "data_criacao", "atividades_sustentaveis", "compensacao_carbono", "cenario")
     search_fields = ("turista__nome", "cidade__nome")
-    readonly_fields = ("data_criacao",)
+    readonly_fields = ("data_criacao", "data_fim")
     fieldsets = (
         ("Participantes", {
             "fields": ("turista", "cidade")
         }),
         ("Detalhes da Viagem", {
-            "fields": ("data_viagem", "duracao_dias", "orcamento", "tipo_hospedagem", "meio_transporte_principal")
+            "fields": ("data_viagem", "duracao_estadia", "data_fim", "numero_turistas", "gasto_medio", "orcamento", "cenario", "tipo_hospedagem", "meio_transporte_principal")
         }),
         ("Sustentabilidade", {
             "fields": ("atividades_sustentaveis", "compensacao_carbono")
