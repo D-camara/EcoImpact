@@ -6,7 +6,8 @@ Implemente os campos que desejarem manter. Estrutura básica pronta.
 from __future__ import annotations
 
 from django.db import models
-from django.core.validators import EmailValidator
+from django.core.validators import EmailValidator, MinValueValidator, MaxValueValidator
+from decimal import Decimal
 
 
 class Cidade(models.Model):
@@ -25,6 +26,7 @@ class Cidade(models.Model):
         decimal_places=2, 
         null=True, 
         blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
         help_text="Índice de sustentabilidade da cidade (0-100)"
     )
     emissao_co2_per_capita = models.DecimalField(
@@ -39,6 +41,7 @@ class Cidade(models.Model):
         decimal_places=2, 
         null=True, 
         blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
         help_text="Percentual de cobertura vegetal da cidade"
     )
     transporte_publico_sustentavel = models.BooleanField(
@@ -50,6 +53,7 @@ class Cidade(models.Model):
         decimal_places=2, 
         null=True, 
         blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
         help_text="Percentual de energia renovável utilizada"
     )
     
@@ -137,7 +141,20 @@ class Simulacao(models.Model):
             ('concluida', 'Concluída'),
             ('erro', 'Erro'),
         ],
-        default='pendente'
+        default='pendente',
+        db_index=True
+    )
+    
+    # Campo cenario com choices
+    cenario = models.CharField(
+        max_length=20,
+        choices=[
+            ('conservador', 'Conservador'),
+            ('realista', 'Realista'),
+            ('otimista', 'Otimista'),
+        ],
+        default='realista',
+        help_text="Cenário de simulação"
     )
     
     # Campos específicos para impacto ambiental e COP 30
@@ -180,7 +197,14 @@ class Simulacao(models.Model):
         verbose_name_plural = "Simulações"
 
     def __str__(self) -> str:
-        return f"Simulação {self.id} - {self.turista.nome} para {self.cidade.nome}"
+        turista_nome = self.turista.nome if self.turista else "Anônimo"
+        return f"Simulação {self.id} - {turista_nome} para {self.cidade.nome}"
+    
+    def save(self, *args, **kwargs):
+        # Converter valores para Decimal antes de salvar
+        if self.orcamento is not None:
+            self.orcamento = Decimal(str(self.orcamento))
+        super().save(*args, **kwargs)
 
 
 class Relatorio(models.Model):
@@ -197,6 +221,7 @@ class Relatorio(models.Model):
         decimal_places=2, 
         null=True, 
         blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
         help_text="Pontuação de sustentabilidade (0-100)"
     )
     criado_em = models.DateTimeField(auto_now_add=True)
@@ -244,6 +269,19 @@ class Relatorio(models.Model):
         verbose_name = "Relatório"
         verbose_name_plural = "Relatórios"
         ordering = ["-criado_em"]
+    
+    def save(self, *args, **kwargs):
+        # Converter valores para Decimal antes de salvar
+        decimal_fields = ['pontuacao_sustentabilidade', 'emissao_co2_total', 
+                         'emissao_co2_transporte', 'emissao_co2_hospedagem', 
+                         'economia_local_impacto']
+        
+        for field_name in decimal_fields:
+            value = getattr(self, field_name)
+            if value is not None:
+                setattr(self, field_name, Decimal(str(value)))
+        
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return f"Relatório da Simulação {self.simulacao.id}"
