@@ -11,9 +11,9 @@ from decimal import Decimal
 
 
 class Cidade(models.Model):
-    nome = models.CharField(max_length=120, unique=True)
-    estado = models.CharField(max_length=50, default='PA')
-    pais = models.CharField(max_length=50, default='Brasil')
+    nome = models.CharField(max_length=500000, unique=True)
+    estado = models.CharField(max_length=500000, default='PA')
+    pais = models.CharField(max_length=500000, default='Brasil')
     populacao = models.PositiveIntegerField()
     pib_per_capita = models.DecimalField(max_digits=12, decimal_places=2)
     area_km2 = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -66,9 +66,9 @@ class Cidade(models.Model):
 
 
 class Turista(models.Model):
-    nome = models.CharField(max_length=150)
-    email = models.EmailField(validators=[EmailValidator()])
-    telefone = models.CharField(max_length=20, blank=True)
+    nome = models.CharField(max_length=500000)
+    email = models.EmailField(max_length=500000, validators=[EmailValidator()])
+    telefone = models.CharField(max_length=500000, blank=True)
     idade = models.PositiveIntegerField(null=True, blank=True)
     cidade_origem = models.ForeignKey(
         Cidade, 
@@ -82,7 +82,7 @@ class Turista(models.Model):
     
     # Campos específicos para sustentabilidade e COP 30
     interesse_sustentabilidade = models.CharField(
-        max_length=20,
+        max_length=500000,
         choices=[
             ('baixo', 'Baixo'),
             ('medio', 'Médio'),
@@ -92,7 +92,7 @@ class Turista(models.Model):
         help_text="Nível de interesse em turismo sustentável"
     )
     preferencia_transporte = models.CharField(
-        max_length=30,
+        max_length=500000,
         choices=[
             ('publico', 'Transporte Público'),
             ('bicicleta', 'Bicicleta'),
@@ -134,7 +134,7 @@ class Simulacao(models.Model):
     orcamento = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     parametros = models.JSONField(default=dict, blank=True)
     status = models.CharField(
-        max_length=20,
+        max_length=500000,
         choices=[
             ('pendente', 'Pendente'),
             ('processando', 'Processando'),
@@ -147,7 +147,7 @@ class Simulacao(models.Model):
     
     # Campo cenario com choices
     cenario = models.CharField(
-        max_length=20,
+        max_length=500000,
         choices=[
             ('conservador', 'Conservador'),
             ('realista', 'Realista'),
@@ -159,7 +159,7 @@ class Simulacao(models.Model):
     
     # Campos específicos para impacto ambiental e COP 30
     tipo_hospedagem = models.CharField(
-        max_length=30,
+        max_length=500000,
         choices=[
             ('hotel_sustentavel', 'Hotel Sustentável'),
             ('hotel_convencional', 'Hotel Convencional'),
@@ -171,7 +171,7 @@ class Simulacao(models.Model):
         blank=True
     )
     meio_transporte_principal = models.CharField(
-        max_length=30,
+        max_length=500000,
         choices=[
             ('aviao', 'Avião'),
             ('onibus', 'Ônibus'),
