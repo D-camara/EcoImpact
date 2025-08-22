@@ -61,7 +61,7 @@
                             <a class="nav-link" href="#">Simular Resultados</a>
                         </li>
                          <li class="nav-item">
-                            <a class="nav-link" href="#">Contato</a>
+                            <a class="nav-link" href="#contato-section">Contato</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
@@ -126,15 +126,15 @@
             </div>
             <hr class="featurette-divider">
         </div>
-        <div class="login-form-container">
+        <div class="login-form-container" id="contato-section">
           <form class="login-form" id="comment-form">
             <div class="form-floating mb-3">
               <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
-              <label for="floatingInput">Email address</label>
+              <label for="floatingInput">Seu Email</label>
             </div>
             <div class="form-floating">
-              <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
-              <label for="floatingTextarea2">Comments</label>
+              <textarea class="form-control" placeholder="Digite seu comentário aqui" id="floatingTextarea2" style="height: 100px"></textarea>
+              <label for="floatingTextarea2">Seu Comentário</label>
             </div>
           </form>
         </div>
@@ -143,6 +143,38 @@
         <p>Abraço pro indiano.<a href="https://getbootstrap.com/" class="text-white">Faidherb</a>, by <a href="https://x.com/mdo" class="text-white">LOL</a>.</p>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- SCRIPT FINAL PARA FECHAR O MENU E ROLAR CORRETAMENTE -->
+    <script>
+      const navLinks = document.querySelectorAll('#offcanvasNavbarDark .nav-link');
+      const offcanvasElement = document.getElementById('offcanvasNavbarDark');
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+          const href = this.getAttribute('href');
+
+          // Verifica se é um link de âncora (começa com #)
+          if (href && href.startsWith('#')) {
+            event.preventDefault(); // Previne o comportamento padrão do link
+
+            const targetElement = document.querySelector(href);
+            const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+
+            if (targetElement && bsOffcanvas) {
+              // Adiciona um listener que só dispara UMA VEZ, APÓS o menu fechar
+              offcanvasElement.addEventListener('hidden.bs.offcanvas', function () {
+                targetElement.scrollIntoView({
+                  behavior: 'smooth'
+                });
+              }, { once: true }); // A opção 'once: true' remove o listener após o uso
+
+              // Inicia o processo de fechar o menu
+              bsOffcanvas.hide();
+            }
+          }
+        });
+      });
+    </script>
 </body>
 
 </html>
