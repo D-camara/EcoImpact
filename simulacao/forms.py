@@ -16,7 +16,37 @@ class SimulacaoForm(forms.Form):
     def limpar_lista_cidades(self):
         raw = self.cleaned_data.get('cidades_visitadas') or ''
         partes = [p.strip() for p in raw.split(',') if p.strip()]
-        return partes
+        # Remove duplicadas preservando ordem
+        seen = set()
+        dedup = []
+        for p in partes:
+            low = p.lower()
+            if low not in seen:
+                seen.add(low)
+                dedup.append(p)
+        return dedup
+
+    def clean_numero_turistas(self):
+        v = self.cleaned_data['numero_turistas']
+        if v > 50_000_000:
+            raise forms.ValidationError("Número de turistas muito alto (limite 50 milhões).")
+        return v
+
+    def clean_gasto_medio(self):
+        v = self.cleaned_data['gasto_medio']
+        # Exemplo de limite plausível: R$ 100.000 por dia
+        if v > 100_000:
+            raise forms.ValidationError("Gasto médio por dia acima do limite permitido (100.000).")
+        return v
+
+    def clean_cidades_visitadas(self):
+        raw = self.cleaned_data.get('cidades_visitadas') or ''
+        # Apenas valida duplicidade explícita (ex: Belém, belém)
+        partes = [p.strip() for p in raw.split(',') if p.strip()]
+        lowered = [p.lower() for p in partes]
+        if len(set(lowered)) != len(lowered):
+            raise forms.ValidationError("Lista contém cidades repetidas.")
+        return raw
 
     def build_parametros(self):
         if not self.is_valid():
