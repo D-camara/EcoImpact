@@ -16,8 +16,32 @@ def simulacao_view(request: HttpRequest) -> HttpResponse:
 
 @require_http_methods(["POST"])  # Scaffold de API
 def api_simular(request: HttpRequest) -> JsonResponse:
-    return JsonResponse({"detail": "TODO: implementar endpoint de simulação"}, status=501)
-
+    try:
+        import json
+        # Pega os dados do corpo da requisição
+        dados = json.loads(request.body)
+        
+        # Chama a função de cálculo do services.py
+        from .services import calcular_impacto_economico
+        resultado = calcular_impacto_economico(dados)
+        
+        # Se tiver erro, retorna status 400
+        if 'erro' in resultado:
+            return JsonResponse(resultado, status=400)
+        
+        return JsonResponse(resultado)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'erro': 'JSON inválido. Envie os dados no formato correto.',
+            'exemplo': {
+                'numero_turistas': 100,
+                'gasto_medio': 150.50,
+                'duracao_estadia': 7,
+                'cidades_visitadas': 3,
+                'multiplicador': 1.0
+            }
+        }, status=400)
 
 @require_http_methods(["GET"])  # Scaffold de API
 def api_resultado(request: HttpRequest, simulacao_id: int) -> JsonResponse:

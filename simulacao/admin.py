@@ -22,3 +22,11 @@ class SimulacaoAdmin(admin.ModelAdmin):
 class RelatorioAdmin(admin.ModelAdmin):
     list_display = ("simulacao", "criado_em")
     readonly_fields = ("criado_em",)
+from .models import ImpactoEconomico
+
+@admin.register(ImpactoEconomico)
+class ImpactoEconomicoAdmin(admin.ModelAdmin):
+    list_display = ('nome_simulacao', 'numero_turistas', 'gasto_medio', 'duracao_estadia', 'cidades_visitadas', 'data_criacao')
+    list_filter = ('data_criacao', 'cidades_visitadas')
+    search_fields = ('nome_simulacao',)
+    readonly_fields = ('data_criacao',)
