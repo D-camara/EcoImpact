@@ -9,6 +9,7 @@ class Cidade(models.Model):
     nome = models.CharField(max_length=120, unique=True)
     populacao = models.PositiveIntegerField()
     pib_per_capita = models.DecimalField(max_digits=12, decimal_places=2)
+    estado = models.CharField(max_length=50, default="Pará", help_text="Unidade federativa (default Pará)")
 
     class Meta:
         ordering = ["nome"]

@@ -2,12 +2,30 @@
 
 {% block title %}Simulação - EcoImpact{% endblock %}
 {% block content %}
-<h2>Nova Simulação (scaffold)</h2>
-<p>Preencha os campos e implemente o POST no view para processar.</p>
-<form method="post">
+<h2>Nova Simulação</h2>
+{% if erro %}
+  <div style="color:#b00;font-weight:bold;">Erro: {{ erro }}</div>
+{% endif %}
+<form method="post" novalidate>
   {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Simular</button>
-  <p><em>TODO: ao submeter, calcular e redirecionar para resultados.</em></p>
+  <fieldset>
+    {{ form.non_field_errors }}
+    {{ form.cidade_principal.errors }}
+    <label>{{ form.cidade_principal.label }}<br>{{ form.cidade_principal }}</label><br>
+    <label>{{ form.numero_turistas.label }}<br>{{ form.numero_turistas }}</label><br>
+    <label>{{ form.gasto_medio.label }}<br>{{ form.gasto_medio }}</label><br>
+    <label>{{ form.duracao_estadia.label }}<br>{{ form.duracao_estadia }}</label><br>
+    <label>{{ form.cidades_visitadas.label }}<br>{{ form.cidades_visitadas }}<br>
+      <small>{{ form.cidades_visitadas.help_text }}</small>
+    </label><br>
+    <label>{{ form.cenario.label }}<br>{{ form.cenario }}</label><br>
+    <label>{{ form.multiplicador.label }}<br>{{ form.multiplicador }}<br>
+      <small>{{ form.multiplicador.help_text }}</small>
+    </label>
+  </fieldset>
+  <button type="submit">Calcular Impacto</button>
 </form>
+<p style="margin-top:1rem;">
+  <strong>Dica:</strong> deixe Multiplicador vazio para usar o cenário selecionado.
+</p>
 {% endblock %}

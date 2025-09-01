@@ -8,14 +8,22 @@
     </head>
     <body>
         <header>
-            <h1>EcoImpact</h1>
+            <h1 style="margin-bottom:0;">EcoImpact</h1>
+            <nav style="margin:8px 0;">
+                <a href="/" style="margin-right:12px;">Início</a>
+                <a href="{% url 'simular' %}" style="margin-right:12px;">Nova Simulação</a>
+                <!-- Caso crie uma listagem de resultados futuramente, ajuste esta rota -->
+                <a href="{% url 'simular' %}?ultimos=1" style="margin-right:12px;">Resultados (último)</a>
+            </nav>
+            <hr>
         </header>
         <main>
             {% block content %}
             <!-- Conteúdo principal -->
             {% endblock %}
         </main>
-        <footer>
+        <footer style="margin-top:2rem; font-size:0.85rem; color:#555;">
+            <hr>
             <p>Projeto EcoImpact - Faculdade</p>
         </footer>
     </body>

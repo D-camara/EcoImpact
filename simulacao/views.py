@@ -14,9 +14,22 @@ from .forms import SimulacaoForm
 
 @require_http_methods(["GET", "POST"])
 def simulacao_view(request: HttpRequest) -> HttpResponse:
-    """Página de simulação (scaffold). Substituam o conteúdo conforme a implementação."""
     form = SimulacaoForm(request.POST or None)
-    return render(request, "simulacao/form.html", {"form": form, "TODO": True})
+    contexto = {"form": form}
+    if request.method == "POST" and form.is_valid():
+        try:
+            params = form.build_parametros()
+            resultado = calcular_impacto_economico(params)
+            contexto.update({
+                "resultado": resultado,
+                "params": params,
+            })
+            return render(request, "simulacao/resultado.html", contexto)
+        except ParametrosInvalidos as e:
+            contexto["erro"] = str(e)
+        except Exception as e:  # fallback
+            contexto["erro"] = f"Erro inesperado: {e}"
+    return render(request, "simulacao/form.html", contexto)
 
 
 @csrf_exempt
