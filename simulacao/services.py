@@ -4,6 +4,10 @@ Preencha aqui a lógica de negócio quando forem implementar.
 """
 
 from typing import Dict, Any
+from decimal import Decimal, ROUND_HALF_UP, getcontext
+
+# Ajusta precisão global (suficiente para valores grandes)
+getcontext().prec = 28
 
 
 class ParametrosInvalidos(ValueError):
@@ -29,7 +33,7 @@ def calcular_impacto_economico(parametros: Dict[str, Any]) -> Dict[str, Any]:
     # --- Normalização de entradas ---
     try:
         numero_turistas = int(parametros.get('numero_turistas', 0))
-        gasto_medio = float(parametros.get('gasto_medio', 0))
+        gasto_medio = Decimal(str(parametros.get('gasto_medio', 0)))
         duracao_estadia = int(parametros.get('duracao_estadia', 0))
 
         cidades_raw = parametros.get('cidades_visitadas', [])
@@ -66,33 +70,36 @@ def calcular_impacto_economico(parametros: Dict[str, Any]) -> Dict[str, Any]:
         'realista': 1.0,
         'otimista': 1.15,
     }
-    multiplicador = float(multiplicador_input) if multiplicador_input is not None else tabela_cenarios[cenario]
+    multiplicador = Decimal(str(multiplicador_input)) if multiplicador_input is not None else Decimal(str(tabela_cenarios[cenario]))
     if multiplicador <= 0:
         raise ParametrosInvalidos("multiplicador deve ser > 0")
 
     # Ajuste leve por diversidade (mais cidades => + até 10%)
-    ajuste_cidades = 1 + min(0.10, 0.02 * (n_cidades - 1))
+    ajuste_cidades = Decimal('1') + Decimal(str(min(0.10, 0.02 * (n_cidades - 1))))
     # Ajuste de estadia (diminui gasto marginal após 10 dias)
-    fator_duracao = 1 - min(0.25, max(0, duracao_estadia - 10) * 0.02)
+    fator_duracao = Decimal('1') - Decimal(str(min(0.25, max(0, duracao_estadia - 10) * 0.02)))
 
-    gasto_total = numero_turistas * gasto_medio * duracao_estadia
-    gasto_ajustado = gasto_total * ajuste_cidades * fator_duracao
-    impacto_total = gasto_ajustado * multiplicador
+    gasto_total = (Decimal(numero_turistas) * gasto_medio * Decimal(duracao_estadia))
+    gasto_ajustado = (gasto_total * ajuste_cidades * fator_duracao)
+    impacto_total = (gasto_ajustado * multiplicador)
 
-    impacto_por_cidade = impacto_total / n_cidades
-    breakdown_cidades = {nome: round(impacto_por_cidade, 2) for nome in lista_cidades}
+    impacto_por_cidade = impacto_total / Decimal(n_cidades)
+    TWO_PLACES = Decimal('0.01')
+    def q(v: Decimal, places=TWO_PLACES):
+        return float(v.quantize(places, rounding=ROUND_HALF_UP))
+    breakdown_cidades = {nome: q(impacto_por_cidade) for nome in lista_cidades}
 
     return {
-        'impacto_total': round(impacto_total, 2),
-        'gasto_total': round(gasto_total, 2),
-        'gasto_total_ajustado': round(gasto_ajustado, 2),
-        'multiplicador': round(multiplicador, 4),
+        'impacto_total': q(impacto_total),
+        'gasto_total': q(gasto_total),
+        'gasto_total_ajustado': q(gasto_ajustado),
+        'multiplicador': float(multiplicador.quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP)),
         'cenario': cenario,
-        'ajuste_cidades': round(ajuste_cidades, 4),
-        'fator_duracao': round(fator_duracao, 4),
+        'ajuste_cidades': float(Decimal(str(ajuste_cidades)).quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP)),
+        'fator_duracao': float(Decimal(str(fator_duracao)).quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP)),
         'numero_turistas': numero_turistas,
         'duracao_estadia': duracao_estadia,
-        'gasto_medio': gasto_medio,
+        'gasto_medio': float(gasto_medio),
         'cidades_visitadas': lista_cidades,
         'impacto_por_cidade': breakdown_cidades,
         'n_cidades': n_cidades,
