@@ -246,3 +246,18 @@ body {
 .form-floating label {
   color: #666;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  img {
+    scale: .8;
+    opacity: 0.5;
+    animation: fade-in linear forwards;
+    animation-timeline: view();
+    animation-range: entry;
+  }
+
+  @keyframes fade-in {
+    from { scale: 0.8; opacity: 0.5; }
+    to { scale: 1; opacity: 1; }
+  }
+}
