@@ -9,9 +9,59 @@ from .forms import SimulacaoForm
 
 @require_http_methods(["GET", "POST"])
 def simulacao_view(request: HttpRequest) -> HttpResponse:
-    """Página de simulação (scaffold). Substituam o conteúdo conforme a implementação."""
-    form = SimulacaoForm(request.POST or None)
-    return render(request, "simulacao/form.html", {"form": form, "TODO": True})
+    """Página principal de simulação de impacto econômico"""
+    resultado = None
+    
+    if request.method == 'POST':
+        form = SimulacaoForm(request.POST)
+        if form.is_valid():
+            try:
+                from .services import calcular_impacto_economico, ParametrosInvalidos
+                from django.contrib import messages
+                
+                print("🔄 Processando simulação...")
+                
+                # Preparar parâmetros para o cálculo
+                cidades_selecionadas = form.cleaned_data['cidades_selecionadas']
+                print(f"🏙️ Cidades selecionadas: {[c.nome for c in cidades_selecionadas]}")
+                
+                parametros = {
+                    'numero_turistas': form.cleaned_data['numero_turistas'],
+                    'gasto_medio': form.cleaned_data['gasto_medio'],
+                    'duracao_estadia': form.cleaned_data['duracao_estadia'],
+                    'cidades_selecionadas': [cidade.nome for cidade in cidades_selecionadas],
+                    'multiplicador': form.cleaned_data['multiplicador'],
+                    'consumo_agua_pessoa': form.cleaned_data['consumo_agua_pessoa'],
+                    'producao_lixo_pessoa': form.cleaned_data['producao_lixo_pessoa'],
+                }
+                
+                print(f"📊 Parâmetros: {parametros}")
+                
+                # Calcular impacto
+                resultado = calcular_impacto_economico(parametros)
+                print(f"✅ Resultado calculado: {resultado is not None}")
+                
+                # Se há resultado, mostrar template de resultado
+                if resultado:
+                    print("🎯 Redirecionando para template de resultado...")
+                    return render(request, 'simulacao/resultado_simples.html', {
+                        'resultado': resultado
+                    })
+                else:
+                    print("❌ Resultado vazio")
+                
+            except Exception as e:
+                print(f"💥 Erro no cálculo: {e}")
+                from django.contrib import messages
+                messages.error(request, f'Erro no cálculo: {e}')
+    else:
+        form = SimulacaoForm()
+    
+    # Mostrar formulário (GET ou POST com erro)
+    return render(request, 'simulador.html', {
+        'form': form,
+        'resultado': resultado
+    })
 
 
 @require_http_methods(["POST"])

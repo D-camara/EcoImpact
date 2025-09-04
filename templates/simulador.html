@@ -1,0 +1,655 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Simulador de Impacto - COP 30{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/simulador.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<style>
+    .simulator-container {
+        background: linear-gradient(135deg, #1a5f3f, #2d4a3e);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+    
+    .card-simulator {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+    }
+    
+    .btn-simulate {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-simulate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+    }
+    
+    .results-card {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-left: 5px solid #28a745;
+        margin-top: 30px;
+        border-radius: 10px;
+    }
+    
+    .metric-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #28a745;
+    }
+    
+    .metric-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .cities-breakdown {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+    }
+    
+    /* Botão de voltar melhorado */
+    .btn-voltar {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-voltar:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.6);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-voltar i {
+        font-size: 1.1rem;
+    }
+    
+    /* Estilo para seleção de cidades */
+    .cities-selection {
+        max-height: 300px;
+        overflow-y: auto;
+        background: #fff;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .city-card {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .city-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.5s;
+    }
+    
+    .city-card:hover::before {
+        left: 100%;
+    }
+    
+    .city-card:hover {
+        border-color: #28a745;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.15);
+    }
+    
+    .city-card.selected {
+        border-color: #28a745;
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+    }
+    
+    .city-card input[type="checkbox"] {
+        display: none;
+    }
+    
+    .city-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .city-details {
+        flex: 1;
+    }
+    
+    .city-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #2c3e50;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .city-stats {
+        display: flex;
+        gap: 15px;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .city-stat {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .city-checkbox-icon {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #6c757d;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        background: #fff;
+    }
+    
+    .city-card.selected .city-checkbox-icon {
+        background: #28a745;
+        border-color: #28a745;
+        color: white;
+        transform: scale(1.1);
+        animation: checkPulse 0.3s ease;
+    }
+    
+    @keyframes checkPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1.1); }
+    }
+    
+    .cities-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+    
+    .selected-count {
+        background: #28a745;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .cities-selection::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .cities-selection::-webkit-scrollbar-track {
+        background: #f1f3f4;
+        border-radius: 10px;
+    }
+    
+    .cities-selection::-webkit-scrollbar-thumb {
+        background: #28a745;
+        border-radius: 10px;
+    }
+    
+    .cities-selection::-webkit-scrollbar-thumb:hover {
+        background: #218838;
+    }
+    
+    .cities-selection .form-check-input {
+        margin-right: 10px;
+    }
+    
+    .cities-selection .form-check-label {
+        font-weight: 500;
+        color: #495057;
+        cursor: pointer;
+    }
+    
+    @media (max-width: 768px) {
+        .btn-voltar {
+            position: relative !important;
+            margin-bottom: 20px;
+            left: 0 !important;
+            top: 0 !important;
+        }
+        
+        .simulator-header {
+            text-align: center;
+            padding-top: 20px;
+        }
+    }
+</style>
+
+<div class="simulator-container">
+    <div class="container">
+        <!-- Header -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-10 simulator-header">
+                <!-- Botão Voltar -->
+                <div class="d-flex justify-content-start mb-3">
+                    <a href="{% url 'home' %}" class="btn-voltar">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Voltar ao Início
+                    </a>
+                </div>
+                
+                <!-- Título centralizado -->
+                <div class="text-center">
+                    <h1 class="display-4 text-white mb-3">
+                        <i class="bi bi-graph-up me-3"></i>
+                        Simulador de Impacto Econômico
+                    </h1>
+                    <p class="lead text-white-50 hero-desc">
+                        Calcule o impacto econômico do turismo na região durante eventos como a COP 30
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <!-- Formulário -->
+            <div class="col-lg-6 mb-4">
+                <div class="card card-simulator">
+                    <div class="card-body p-4">
+                        <h3 class="card-title mb-4 text-center">
+                            <i class="bi bi-calculator me-2"></i>
+                            Parâmetros da Simulação
+                        </h3>
+                        
+                        <form method="post" id="simulationForm">
+                            {% csrf_token %}
+                            
+                            <!-- Seleção de Cidades -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-dark mb-3">
+                                    <i class="bi bi-geo-alt-fill me-2 text-primary"></i>
+                                    {{ form.cidades_selecionadas.label }}
+                                </label>
+                                <div class="cities-selection">
+                                    {% for choice in form.cidades_selecionadas %}
+                                        <div class="city-card" onclick="toggleCity(this)">
+                                            {{ choice.tag }}
+                                            <div class="city-info">
+                                                <div class="city-details">
+                                                    <div class="city-name">
+                                                        <i class="bi bi-building me-2 text-success"></i>
+                                                        {{ choice.choice_label }}
+                                                    </div>
+                                                    <div class="city-stats">
+                                                        <div class="city-stat">
+                                                            <i class="bi bi-people-fill text-primary"></i>
+                                                            <span>{{ choice.data.populacao|floatformat:0 }} hab</span>
+                                                        </div>
+                                                        <div class="city-stat">
+                                                            <i class="bi bi-currency-dollar text-success"></i>
+                                                            <span>PIB/hab: R$ {{ choice.data.pib_per_capita|floatformat:0 }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="city-checkbox-icon">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% empty %}
+                                        <div class="text-center py-4">
+                                            <i class="bi bi-info-circle text-muted mb-2" style="font-size: 2rem;"></i>
+                                            <p class="text-muted">Nenhuma cidade cadastrada no sistema.</p>
+                                            <small class="text-muted">Entre em contato com o administrador.</small>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="form-text text-muted mt-2">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    {{ form.cidades_selecionadas.help_text }}
+                                </div>
+                            </div>
+                            
+                            <div class="form-floating mb-3">
+                                {{ form.numero_turistas }}
+                                <label for="{{ form.numero_turistas.id_for_label }}" class="text-dark">
+                                    {{ form.numero_turistas.label }}
+                                </label>
+                                <div class="form-text text-muted">{{ form.numero_turistas.help_text }}</div>
+                            </div>
+                            
+                            <div class="form-floating mb-3">
+                                {{ form.gasto_medio }}
+                                <label for="{{ form.gasto_medio.id_for_label }}" class="text-dark">
+                                    {{ form.gasto_medio.label }}
+                                </label>
+                                <div class="form-text text-muted">{{ form.gasto_medio.help_text }}</div>
+                            </div>
+                            
+                            <div class="form-floating mb-3">
+                                {{ form.duracao_estadia }}
+                                <label for="{{ form.duracao_estadia.id_for_label }}" class="text-dark">
+                                    {{ form.duracao_estadia.label }}
+                                </label>
+                                <div class="form-text text-muted">{{ form.duracao_estadia.help_text }}</div>
+                            </div>
+                            
+                            <div class="form-floating mb-4">
+                                {{ form.multiplicador }}
+                                <label for="{{ form.multiplicador.id_for_label }}" class="text-dark">
+                                    {{ form.multiplicador.label }}
+                                </label>
+                                <div class="form-text text-muted">{{ form.multiplicador.help_text }}</div>
+                            </div>
+                            
+                            <!-- Seção de Parâmetros Ambientais -->
+                            <div class="mb-4">
+                                <h5 class="text-dark mb-3">
+                                    <i class="bi bi-tree-fill me-2 text-success"></i>
+                                    Parâmetros Ambientais
+                                </h5>
+                                
+                                <div class="form-floating mb-3">
+                                    {{ form.consumo_agua_pessoa }}
+                                    <label for="{{ form.consumo_agua_pessoa.id_for_label }}" class="text-dark">
+                                        {{ form.consumo_agua_pessoa.label }}
+                                    </label>
+                                    <div class="form-text text-muted">{{ form.consumo_agua_pessoa.help_text }}</div>
+                                </div>
+                                
+                                <div class="form-floating mb-3">
+                                    {{ form.producao_lixo_pessoa }}
+                                    <label for="{{ form.producao_lixo_pessoa.id_for_label }}" class="text-dark">
+                                        {{ form.producao_lixo_pessoa.label }}
+                                    </label>
+                                    <div class="form-text text-muted">{{ form.producao_lixo_pessoa.help_text }}</div>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-simulate w-100">
+                                <i class="bi bi-play-circle me-2"></i>
+                                Simular Impacto
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resultados -->
+            <div class="col-lg-6">
+                {% if resultado %}
+                <div class="card card-simulator results-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 class="card-title mb-0">
+                                <i class="bi bi-bar-chart me-2"></i>
+                                Resultados da Simulação
+                            </h3>
+                        </div>
+                        
+                        <!-- Métricas principais -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="metric-card text-center">
+                                    <div class="metric-value text-success">
+                                        R$ {{ resultado.impacto_total|floatformat:0 }}
+                                    </div>
+                                    <div class="metric-label">Impacto Econômico</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="metric-card text-center">
+                                    <div class="metric-value text-primary">
+                                        {{ resultado.consumo_agua_total_m3|floatformat:0 }} m³
+                                    </div>
+                                    <div class="metric-label">Consumo de Água</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="metric-card text-center">
+                                    <div class="metric-value text-warning">
+                                        {{ resultado.producao_lixo_total_toneladas|floatformat:1 }} ton
+                                    </div>
+                                    <div class="metric-label">Produção de Lixo</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Gráficos de Impacto -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="metric-card">
+                                    <h5 class="mb-3">
+                                        <i class="bi bi-bar-chart me-2"></i>
+                                        Visualização de Impactos
+                                    </h5>
+                                    
+                                    <!-- Gráficos separados para melhor visualização -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="text-center mb-3">
+                                                <h6 class="text-success">Impacto Econômico</h6>
+                                                <canvas id="economicChart" width="150" height="150"></canvas>
+                                                <small class="text-muted">R$ {{ resultado.impacto_total|floatformat:0 }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center mb-3">
+                                                <h6 class="text-primary">Consumo de Água</h6>
+                                                <canvas id="waterChart" width="150" height="150"></canvas>
+                                                <small class="text-muted">{{ resultado.consumo_agua_total_m3|floatformat:0 }} m³</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center mb-3">
+                                                <h6 class="text-warning">Produção de Lixo</h6>
+                                                <canvas id="wasteChart" width="150" height="150"></canvas>
+                                                <small class="text-muted">{{ resultado.producao_lixo_total_toneladas|floatformat:1 }} ton</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Gráfico comparativo normalizado -->
+                                    <div class="mt-4">
+                                        <h6 class="text-center mb-3">Comparação de Impactos por Categoria</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div style="position: relative; height: 250px;">
+                                                    <canvas id="impactChart"
+                                                        {% if resultado %}
+                                                        data-chart='{"impacto": {{ resultado.impacto_total }}, "agua": {{ resultado.consumo_agua_total_m3 }}, "lixo": {{ resultado.producao_lixo_total_toneladas }}}'
+                                                        {% endif %}>
+                                                    </canvas>
+                                                </div>
+                                                <small class="text-muted d-block text-center">Índice Relativo (escala logarítmica)</small>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div style="position: relative; height: 250px;">
+                                                    <canvas id="alternativeChart"
+                                                        {% if resultado %}
+                                                        data-chart='{"impacto": {{ resultado.impacto_total }}, "agua": {{ resultado.consumo_agua_total_m3 }}, "lixo": {{ resultado.producao_lixo_total_toneladas }}}'
+                                                        {% endif %}>
+                                                    </canvas>
+                                                </div>
+                                                <small class="text-muted d-block text-center">Distribuição por Valor Monetário Equivalente</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Detalhes da simulação -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="metric-card">
+                                    <h5 class="mb-3">
+                                        <i class="bi bi-info-circle me-2 text-primary"></i>
+                                        Parâmetros Econômicos
+                                    </h5>
+                                    <div class="row">
+                                        <div class="col-12 mb-2">
+                                            <strong>Turistas:</strong> {{ resultado.numero_turistas|floatformat:0 }}
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <strong>Estadia:</strong> {{ resultado.duracao_estadia }} dias
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <strong>Gasto/dia:</strong> R$ {{ resultado.gasto_medio|floatformat:2 }}
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <strong>Multiplicador:</strong> {{ resultado.multiplicador }}
+                                        </div>
+                                    </div>
+                                    
+                                    {% if resultado.gasto_total_ajustado != resultado.gasto_total %}
+                                    <div class="mt-3">
+                                        <small class="text-muted">
+                                            <strong>Gasto ajustado:</strong> R$ {{ resultado.gasto_total_ajustado|floatformat:0 }}
+                                            (fator cidades: {{ resultado.ajuste_cidades }}, fator duração: {{ resultado.fator_duracao }})
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="metric-card">
+                                    <h5 class="mb-3">
+                                        <i class="bi bi-droplet me-2 text-success"></i>
+                                        Impactos Ambientais
+                                    </h5>
+                                    <div class="row">
+                                        <div class="col-12 mb-2">
+                                            <strong>Água/pessoa:</strong> {{ resultado.consumo_agua_pessoa }} L/dia
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <strong>Água total:</strong> {{ resultado.consumo_agua_total|floatformat:0 }} L
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <strong>Lixo/pessoa:</strong> {{ resultado.producao_lixo_pessoa }} kg/dia
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <strong>Lixo total:</strong> {{ resultado.producao_lixo_total|floatformat:0 }} kg
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Breakdown por cidades -->
+                        {% if resultado.impacto_por_cidade %}
+                        <div class="cities-breakdown">
+                            <h6><i class="bi bi-geo-alt me-2"></i>Impacto por Cidade ({{ resultado.n_cidades }} cidades)</h6>
+                            <div class="row">
+                                {% for cidade, valor in resultado.impacto_por_cidade.items %}
+                                <div class="col-6 mb-2">
+                                    <strong>{{ cidade }}:</strong> R$ {{ valor|floatformat:0 }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Call to action -->
+                        <div class="text-center mt-4">
+                            <a href="{% url 'home' %}" class="btn btn-success me-2">
+                                <i class="bi bi-house me-2"></i>Voltar ao Início
+                            </a>
+                            <button type="button" class="btn btn-outline-primary me-2" onclick="window.print()">
+                                <i class="bi bi-printer me-2"></i>Imprimir Relatório
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('simulationForm').reset()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Nova Simulação
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card card-simulator">
+                    <div class="card-body p-4 text-center">
+                        <div class="text-muted mb-4">
+                            <i class="bi bi-graph-up" style="font-size: 4rem;"></i>
+                        </div>
+                        <h4 class="mb-3">Aguardando Simulação</h4>
+                        <p class="text-muted">
+                            Preencha os parâmetros ao lado e clique em "Simular Impacto" 
+                            para visualizar os resultados da análise econômica.
+                        </p>
+                        
+                        <div class="mt-4">
+                            <h6 class="mb-3">Exemplos de cenários:</h6>
+                            <div class="row text-start">
+                                <div class="col-md-4">
+                                    <strong>Conservador:</strong><br>
+                                    <small class="text-muted">Menor impacto, estimativa mais cautelosa</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Realista:</strong><br>
+                                    <small class="text-muted">Cenário baseado em dados históricos</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Otimista:</strong><br>
+                                    <small class="text-muted">Maior impacto, condições ideais</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado da Simulação - COP-30 EcoImpact</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <h2 class="text-dark mb-3">Resultado da Simulação COP-30</h2>
+                    <p class="text-muted">
+                        {{ resultado.total_turistas|floatformat:0 }} turistas em {{ resultado.cidades_analisadas|length }} cidade(s)
+                    </p>
+                </div>
+
+                <!-- Resultados Totais -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Resultados Totais</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>Impacto Econômico:</strong><br>
+                                <span class="h4 text-success">R$ {{ resultado.impacto_economico_total|floatformat:0 }}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Consumo de Água:</strong><br>
+                                <span class="h4 text-primary">{{ resultado.agua_total|floatformat:0 }} m³</span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Produção de Lixo:</strong><br>
+                                <span class="h4 text-warning">{{ resultado.lixo_total|floatformat:1 }} ton</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalhes por Cidade -->
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Detalhes por Cidade</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for cidade_info in resultado.detalhes_cidades %}
+                        <div class="border-bottom pb-3 mb-3">
+                            <h6 class="text-dark mb-2">{{ cidade_info.nome }}</h6>
+                            
+                            <div class="row text-sm">
+                                <div class="col-md-3">
+                                    <strong>População:</strong><br>
+                                    {{ cidade_info.populacao|floatformat:0 }} hab
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Turistas:</strong><br>
+                                    {{ cidade_info.turistas|floatformat:0 }}
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>PIB per capita:</strong><br>
+                                    R$ {{ cidade_info.pib_per_capita|floatformat:0 }}
+                                </div>
+                                <div class="col-md-3"></div>
+                            </div>
+                            
+                            <div class="row mt-2">
+                                <div class="col-md-4">
+                                    <strong class="text-success">Impacto Econômico:</strong><br>
+                                    R$ {{ cidade_info.impacto_economico|floatformat:0 }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong class="text-primary">Consumo de Água:</strong><br>
+                                    {{ cidade_info.agua|floatformat:0 }} m³
+                                </div>
+                                <div class="col-md-4">
+                                    <strong class="text-warning">Produção de Lixo:</strong><br>
+                                    {{ cidade_info.lixo|floatformat:1 }} ton
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                <div class="text-center">
+                    <a href="{% url 'simulacao:form' %}" class="btn btn-primary me-2">
+                        Nova Simulação
+                    </a>
+                    <button onclick="window.print()" class="btn btn-outline-secondary">
+                        Imprimir Relatório
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

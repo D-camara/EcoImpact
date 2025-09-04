@@ -2,4 +2,4 @@ from django.shortcuts import render
 
 
 def home(request):
-    return render(request, 'base.html', {"home": True})
+    return render(request, 'index.html')
