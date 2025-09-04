@@ -1,19 +1,303 @@
-<!-- Template base para o EcoImpact -->
+{% load static %}
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en" class="h-100" data-bs-theme="">
+
 <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}EcoImpact{% endblock %}</title>
-        {% block head %}{% endblock %}
-    </head>
-    <body>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <title>FaculdadeEcolmpact</title>
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/cover/">
+    <script src="../assets/js/color-modes.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- ALTERADO PARA IMPORTAR A FONTE RUBIK COM PESO 495 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@495&display=swap" rel="stylesheet">
+
+    <link href="{% static 'css/cover.css' %}" rel="stylesheet">
+</head>
+
+<body class="text-bg-dark">
+    <svg style="display:none">
+        <symbol id="check2" viewBox="0 0 16 16">
+            <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"></path>
+        </symbol>
+        <symbol id="circle-half" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+        </symbol>
+        <symbol id="moon-stars-fill" viewBox="0 0 16 16">
+            <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"></path>
+            <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"></path>
+        </symbol>
+        <symbol id="sun-fill" viewBox="0 0 16 16">
+            <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"></path>
+        </symbol>
+    </svg>
+    <nav class="navbar navbar-dark bg-dark" aria-label="Dark offcanvas navbar">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center justify-content-center w-100 position-relative">
+                <!-- ÍCONE DE INFORMAÇÃO MODIFICADO PARA ABRIR O MODAL -->
+                <a href="#" class="position-absolute start-0 p-2 text-white" data-bs-toggle="modal" data-bs-target="#infoModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-info-square" viewBox="0 0 16 16">
+                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                    </svg>
+                </a>
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-leaf me-2"
+                    viewBox="0 0 16 16">
+                    <path
+                        d="M1.4 1.7c.216.289.65.84 1.725 1.274 1.093.44 2.884.774 5.834.528l.37-.023c1.823-.06 3.117.598 3.956 1.579C14.16 6.082 14.5 7.41 14.5 8.5c0 .58-.032 1.285-.229 1.997q.198.248.382.54c.756 1.2 1.19 2.563 1.348 3.966a1 1 0 0 1-1.98.198c-.13-.97-.397-1.913-.868-2.77C12.173 13.386 10.565 14 8 14c-1.854 0-3.32-.544-4.45-1.435-1.125-.887-1.89-2.095-2.391-3.383C.16 6.62.16 3.646.509 1.902L.73.806zm-.05 1.39c-.146 1.609-.008 3.809.74 5.728.457 1.17 1.13 2.213 2.079 2.961.942.744 2.185 1.22 3.83 1.221 2.588 0 3.91-.66 4.609-1.445-1.789-2.46-4.121-1.213-6.342-2.68-.74-.488-1.735-1.323-1.844-2.308-.023-.214.237-.274.38-.112 1.4 1.6 3.573 1.757 5.59 2.045 1.227.215 2.21.526 3 .158.058-.07.11-.14.158-.21z" />
+                </svg>
+                <span class="fs-2 fw-bold">Projeto Ecolmpact</span>
+                <button class="navbar-toggler ms-auto position-absolute end-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbarDark"
+                    aria-controls="offcanvasNavbarDark" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasNavbarDark"
+                aria-labelledby="offcanvasNavbarDarkLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasNavbarDarkLabel">Menu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Simular Impactos</a>
+                        </li>
+                         <li class="nav-item">
+                            <a class="nav-link" href="#contato-section" data-bs-dismiss="offcanvas">Contato</a>
+                        </li>
+                    </ul>
+                    <form class="d-flex mt-3" role="search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Procurar">
+                        <button class="btn btn-outline-success" type="submit">Digite Algo</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
     <main>
-        {% block content %}
-        <!-- Conteúdo principal -->
-        {% endblock %}
+        <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active" data-bs-interval="3000">
+                    <img src="{% static 'img/belem1.jpg' %}" class="d-block w-100" alt="Belém do Pará 1">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold display-3">Simulador de Impacto</h2>
+                        <p class="hero-desc">Buscamos mostrar as mudanças que ocorreram em Belém em decorrência da cidade ser a sede do evento mundial COP-30.</p>
+                    </div>
+                </div>
+                <div class="carousel-item" data-bs-interval="3000">
+                    <img src="{% static 'img/belem2.jpg' %}" class="d-block w-100" alt="Belém do Pará 2">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold display-3">Transformações em Belém: Um Novo Momento para a Cidade</h2>
+                        <p class="hero-desc">
+                            Em nossa homepage, você pode ler as principais mudanças que a cidade de Belém do Pará e região passou recentemente com a chegada dos projetos e anunciação da COP-30.
+                        </p>
+                    </div>
+                </div>
+                <div class="carousel-item" data-bs-interval="3000">
+                    <img src="{% static 'img/belem3.jpg' %}" class="d-block w-100" alt="Belém do Pará 3">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold display-3">Análise Socioeconômica: Explore os Potenciais Impactos das Mudanças</h2>
+                        <p class="hero-desc">
+                            Você pode simular o impacto socioeconômico que essas mudanças podem trazer para a cidade ao
+                            <a href="#" class="btn-link-style">clicar aqui</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Voltar</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Próximo</span>
+            </button>
+        </div>
+
+        <div class="container marketing">
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7">
+                    <h2 class="featurette-heading fw-normal lh-1">Reabertura do Mercado de São Brás</h2>
+                    <p class="lead">O Mercado de São Brás, um importante patrimônio histórico de Belém, foi oficialmente reaberto ao público em 17 de setembro de 2024, após cerca de 14 meses fechado para uma grande reforma. No entanto, a reabertura foi parcial, com a liberação de apenas um pavilhão destinado a eventos, enquanto o restante do complexo continua em obras. A conclusão total do projeto, orçado em R$ 118,3 milhões, está prevista para novembro do mesmo ano.</p>
+                    
+                    <p class="lead">Quando finalizado, o espaço revitalizado contará com 330 estabelecimentos comerciais, abrigando tanto os 193 feirantes antigos quanto novos negócios. O projeto, assinado pelo arquiteto Aurélio Meira, prevê a criação de um restaurante de alta gastronomia, um centro de convenções e áreas para feiras, mantendo a arquitetura histórica do prédio, que mistura os estilos art nouveau e neoclássico. A expectativa é que a obra completa gere mais de 3 mil empregos diretos e indiretos.</p>
+                </div>
+                <div class="col-md-5">
+                    <img src="{% static 'img/mercado.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 1">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7 order-md-2">
+                    <h2 class="featurette-heading fw-normal lh-1">Pavimentação de Bairros</h2>
+                    <p class="lead">As obras para a COP30 em Belém estão deixando um legado de infraestrutura para a cidade, como a pavimentação de 279 vias (quase 89 km) em 32 bairros, incluindo áreas de baixa renda. A renovação da frota de transporte público, com a previsão de 265 novos ônibus (elétricos e a diesel com tecnologia Euro 6), também faz parte das melhorias.</p>
+                    
+                    <p class="lead">Silvio de Oliveira, morador de Belém, relata que já percebe os impactos positivos no dia a dia. Ele destaca que, além das grandes obras visuais como a Nova Doca e o Parque da Cidade, a melhoria das ruas tornou o deslocamento diário mais rápido e seguro. Para ele, apesar dos transtornos temporários, as intervenções representam uma oportunidade de crescimento para o estado e trazem uma sensação de esperança e expectativa de que os benefícios serão duradouros para a população.</p>
+                </div>
+                <div class="col-md-5 order-md-1">
+                    <img src="{% static 'img/fotospavi.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 2">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7">
+                    <h2 class="featurette-heading fw-normal lh-1">Ver-o-Peso e a COP 30</h2>
+                    <p class="lead">O Mercado Ver-o-Peso, um dos mais icônicos cartões-postais de Belém, está no centro das atenções para a COP 30, com um ambicioso projeto de restauração. A reforma, aguardada há décadas, visa revitalizar completamente o complexo, que é um patrimônio histórico tombado. As intervenções planejadas são profundas, incluindo a renovação das estruturas de ferro, a modernização das instalações elétricas e hidráulicas, e a implementação de um novo sistema de saneamento para resolver problemas crônicos de higiene e alagamentos.</p>
+                    
+                    <p class="lead">A obra é considerada um legado fundamental da COP 30 para a cidade, buscando não apenas apresentar uma imagem renovada aos visitantes do evento, mas principalmente oferecer melhores condições de trabalho para os feirantes e uma experiência mais agradável e segura para a população e turistas. O projeto prevê a reorganização dos setores e a padronização das barracas, com o objetivo de transformar o Ver-o-Peso em um espaço mais organizado, funcional e que honre sua imensa importância cultural e turística para a Amazônia.</p>
+                </div>
+                <div class="col-md-5">
+                    <img src="{% static 'img/verinho.jpeg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 3">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7 order-md-2">
+                    <h2 class="featurette-heading fw-normal lh-1">Saneamento e Lazer em Belém</h2>
+                    <p class="lead">Grandes obras de macrodrenagem e saneamento básico em Belém estão programadas para beneficiar diretamente mais de 500 mil pessoas, o que representa mais de um terço da população da capital paraense. As intervenções abrangem 13 canais estratégicos, a maioria em áreas periféricas, com o objetivo principal de reduzir os alagamentos crônicos da cidade e melhorar a qualidade de vida através da coleta de esgoto e escoamento de águas pluviais.</p>
+                    
+                    <p class="lead">Além do impacto funcional, os projetos buscam ressignificar esses espaços, transformando áreas antes degradadas em novos centros de convivência e lazer. Exemplos como os Parques Lineares Tamandaré e Nova Doca, ambos com obras avançadas, estão introduzindo áreas verdes, ciclovias, playgrounds e academias ao ar livre. A visão é mudar a percepção dos canais, convidando a população a usufruir desses locais como ambientes agradáveis e sustentáveis, e não apenas como estruturas de drenagem.</p>
+                </div>
+                <div class="col-md-5 order-md-1">
+                    <img src="{% static 'img/sanebasico.jpeg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 1">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7">
+                    <h2 class="featurette-heading fw-normal lh-1">Belém: Vitrine e Esgoto</h2>
+                    <p class="lead">Em Belém, cidade-sede da COP 30, um contraste gritante expõe a desigualdade social por trás das obras para o evento. Moradores da Vila da Barca, uma histórica comunidade de palafitas que nunca teve saneamento básico, protestam contra a construção de uma estação de esgoto em seu território. A estrutura não servirá à comunidade, mas sim bombeará os dejetos de áreas nobres da cidade, como o bairro da Doca, que estão sendo revitalizadas para a conferência.</p>
+                    
+                    <p class="lead">A controvérsia se aprofunda com a alegação dos moradores de que não houve consulta prévia sobre a obra e o medo de riscos ambientais, como vazamentos e mau cheiro, em uma área já extremamente vulnerável. Enquanto a estação para o esgoto das áreas nobres avança, um projeto separado para levar saneamento à própria Vila da Barca foi anunciado posteriormente e tem um cronograma mais lento.</p>
+                    
+                    <p class="lead">Este cenário na Vila da Barca é um exemplo claro de injustiça ambiental e gentrificação, onde o progresso para a elite é construído sobre a negligência das populações mais pobres. A comunidade, que vive há mais de um século à margem do desenvolvimento, agora se vê no centro de uma obra que beneficia os bairros ricos, sem receber os mesmos investimentos em infraestrutura básica.</p>
+                </div>
+                <div class="col-md-5">
+                    <img src="{% static 'img/palafitas.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 2">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7 order-md-2">
+                    <h2 class="featurette-heading fw-normal lh-1">Preços Abusivos na COP 30</h2>
+                    <p class="lead">Órgãos de defesa do consumidor no Pará, como a Defensoria Pública e o Procon, notificaram as principais plataformas de hospedagem (Airbnb, Booking.com e Decolar) para combater os preços abusivos cobrados para o período da COP 30. A recomendação exige que as empresas alertem os anfitriões cujos preços excedam em três vezes a média da alta temporada e suspendam os anúncios que não forem ajustados em 48 horas.</p>
+                    
+                    <p class="lead">Em resposta, as plataformas alegam que atuam apenas como intermediárias e não têm controle sobre os preços, que são definidos pelos próprios anfitriões. A Booking.com foi mais enfática, afirmando que, por questões contratuais, não pode excluir unilateralmente os anúncios com base nos valores cobrados. Todas as empresas se colocaram à disposição para colaborar com as autoridades, mas ressaltaram as limitações legais de sua atuação.</p>
+                    
+                    <p class="lead">A questão é crítica, pois as hospedagens residenciais representam 60% dos leitos disponíveis para a conferência. A notificação tem força de título executivo, o que significa que o descumprimento pode acarretar penalidades legais. Além da ação estadual, a Secretaria Nacional do Consumidor (Senacon) também está apurando as práticas abusivas, evidenciando a gravidade e a complexidade do problema da especulação de preços em torno da COP 30.</p>
+                </div>
+                <div class="col-md-5 order-md-1">
+                    <img src="{% static 'img/hoteis.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 3">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7">
+                    <h2 class="featurette-heading fw-normal lh-1">Controvérsia na Avenida da COP30</h2>
+                    <p class="lead">A construção da Avenida Liberdade em Belém, uma obra de 13,4 km que corta uma área de floresta, avança em meio a graves controvérsias ambientais e sociais, a poucos meses da COP30. Embora o governo do Pará negue que o projeto esteja ligado à conferência climática, o ritmo acelerado das obras coincide com os preparativos para o evento.</p>
+                    
+                    <p class="lead">Os danos ambientais apontados por especialistas são alarmantes e potencialmente irreversíveis. A obra atravessa a Área de Proteção Ambiental (APA) Metropolitana de Belém, causando desmatamento, erosão e assoreamento de igarapés que são vitais para o abastecimento de água da cidade. Além disso, a construção fragmenta o ecossistema, isolando o Parque Estadual do Utinga e ameaçando a biodiversidade local.</p>
+                    
+                    <p class="lead">O impacto humano é igualmente severo, com comunidades tradicionais, como o Quilombo do Abacatal, relatando a destruição de suas fontes de subsistência e a falta de consulta prévia, um direito garantido por lei. Moradores afirmam que a obra destruiu nascentes de água, bloqueou o acesso a áreas de extrativismo com muros de concreto e resultou na remoção de casas sem a devida indenização.</p>
+                </div>
+                <div class="col-md-5">
+                    <img src="{% static 'img/liberdade.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 1">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7 order-md-2">
+                    <h2 class="featurette-heading fw-normal lh-1">Crises na Periferia</h2>
+                    <p class="lead">Devido às obras de infraestrutura promovidas para a realização da COP-30, projetos de saneamento e macrodrenagem, especialmente na região do canal da Timbó, preveem a demolição de casas, o que pode levar ao deslocamento de várias famílias. Essa situação tem gerado preocupação, pois muitos moradores não sabem se receberão compensações justas ou para onde irão após a remoção, aumentando a insegurança e a sensação de exclusão social.</p>
+                    
+                    <p class="lead">Além do impacto direto sobre as moradias, as obras têm transformado o cotidiano das comunidades, criando ruas vazias e alterando a dinâmica local. A reportagem da Folha destaca relatos de moradores sobre o medo de perder suas casas e a falta de participação no processo de decisão das intervenções. Enquanto a cidade se prepara para receber um evento internacional de grande porte, as populações mais vulneráveis sentem os efeitos negativos das mudanças, evidenciando o desafio de equilibrar desenvolvimento urbano e justiça social.</p>
+                </div>
+                <div class="col-md-5 order-md-1">
+                    <img src="{% static 'img/periferi.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 2">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+        </div>
+        <div class="login-form-container" id="contato-section">
+          <form class="login-form" id="comment-form">
+            <div class="comentario-box mb-3">
+      <p class=" mb-3 text-center fs-5">Nos escreva um comentário :)</p>
+      <div class="form-floating mb-3">
+        <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+        <label for="floatingInput">Seu Email</label>
+      </div>
+      <div class="form-floating">
+        <textarea class="form-control" placeholder="Digite seu comentário aqui" id="floatingTextarea2" style="height: 100px"></textarea>
+        <label for="floatingTextarea2">Seu Comentário</label>
+      </div>
+    </div>
+          </form>
+        </div>
     </main>
-    <footer>
-        <p>Projeto EcoImpact - Faculdade</p>
+    <footer class="mt-auto text-white-50 text-center">
+        <p>Abraço pro indiano.<a href="https://github.com/Faidherb" class="text-white">Faidherb</a>, by <a href="https://github.com/ErrorDefault27" class="text-white">LOL</a>.</p>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
+<!-- MODAL COM OS NOMES (ADICIONE ESTE BLOCO) -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="infoModalLabel">Desenvolvedores</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-unstyled">
+                    <li>Pedro Faidherb</li>
+                    <li>Edgar Cauã</li>
+                    <li>Marcelo Victor</li>
+                    <li>Daniel Camara</li>
+                    <li>Thiago Araujo</li>
+                    <li>Victor Kos</li>
+                    <li>Matheus Viana</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.offcanvas a.nav-link[href^="#"]').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      var target = this.getAttribute('href');
+      // Previne o comportamento padrão do link!
+      e.preventDefault();
+      // Fecha o offcanvas
+      var offcanvasEl = document.querySelector('.offcanvas.show');
+      if (offcanvasEl) {
+        var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
+        offcanvas.hide();
+      }
+      // Aguarda o menu fechar antes de rolar
+      setTimeout(function() {
+        if (target && document.querySelector(target)) {
+          document.querySelector(target).scrollIntoView({behavior: "smooth"});
+        }
+      }, 350);
+    });
+  });
+});
+</script>
+
 </html>
