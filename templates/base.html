@@ -1,19 +1,235 @@
-<!-- Template base para o EcoImpact -->
+{% load static %}
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en" class="h-100" data-bs-theme="">
+
 <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}EcoImpact{% endblock %}</title>
-        {% block head %}{% endblock %}
-    </head>
-    <body>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <title>{% block title %}EcoImpact{% endblock %}</title>
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/cover/">
+    <script src="../assets/js/color-modes.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- ALTERADO PARA IMPORTAR A FONTE RUBIK COM PESO 495 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@495&display=swap" rel="stylesheet">
+
+    <link href="{% static 'cover.css' %}" rel="stylesheet">
+    {% block head %}{% endblock %}
+</head>
+
+<body class="text-bg-dark">
+    {% block content %}
+    <svg style="display:none">
+        <symbol id="check2" viewBox="0 0 16 16">
+            <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"></path>
+        </symbol>
+        <symbol id="circle-half" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+        </symbol>
+        <symbol id="moon-stars-fill" viewBox="0 0 16 16">
+            <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"></path>
+            <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"></path>
+        </symbol>
+        <symbol id="sun-fill" viewBox="0 0 16 16">
+            <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"></path>
+        </symbol>
+    </svg>
+    <nav class="navbar navbar-dark bg-dark" aria-label="Dark offcanvas navbar">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center justify-content-center w-100 position-relative">
+                <!-- ÍCONE DE INFORMAÇÃO MODIFICADO PARA ABRIR O MODAL -->
+                <a href="#" class="position-absolute start-0 p-2 text-white" data-bs-toggle="modal" data-bs-target="#infoModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-info-square" viewBox="0 0 16 16">
+                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                    </svg>
+                </a>
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-leaf me-2"
+                    viewBox="0 0 16 16">
+                    <path
+                        d="M1.4 1.7c.216.289.65.84 1.725 1.274 1.093.44 2.884.774 5.834.528l.37-.023c1.823-.06 3.117.598 3.956 1.579C14.16 6.082 14.5 7.41 14.5 8.5c0 .58-.032 1.285-.229 1.997q.198.248.382.54c.756 1.2 1.19 2.563 1.348 3.966a1 1 0 0 1-1.98.198c-.13-.97-.397-1.913-.868-2.77C12.173 13.386 10.565 14 8 14c-1.854 0-3.32-.544-4.45-1.435-1.125-.887-1.89-2.095-2.391-3.383C.16 6.62.16 3.646.509 1.902L.73.806zm-.05 1.39c-.146 1.609-.008 3.809.74 5.728.457 1.17 1.13 2.213 2.079 2.961.942.744 2.185 1.22 3.83 1.221 2.588 0 3.91-.66 4.609-1.445-1.789-2.46-4.121-1.213-6.342-2.68-.74-.488-1.735-1.323-1.844-2.308-.023-.214.237-.274.38-.112 1.4 1.6 3.573 1.757 5.59 2.045 1.227.215 2.21.526 3 .158.058-.07.11-.14.158-.21z" />
+                </svg>
+                <span class="fs-2 fw-bold">Projeto Ecolmpact</span>
+                <button class="navbar-toggler ms-auto position-absolute end-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbarDark"
+                    aria-controls="offcanvasNavbarDark" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasNavbarDark"
+                aria-labelledby="offcanvasNavbarDarkLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasNavbarDarkLabel">Menu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Simular Resultados</a>
+                        </li>
+                         <li class="nav-item">
+                            <a class="nav-link" href="#contato-section" data-bs-dismiss="offcanvas">Contato</a>
+                        </li>
+                    </ul>
+                    <form class="d-flex mt-3" role="search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">Digite Algo</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
     <main>
-        {% block content %}
-        <!-- Conteúdo principal -->
-        {% endblock %}
+        <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active" data-bs-interval="3000">
+                    <img src="{% static 'img/belem1.jpg' %}" class="d-block w-100" alt="Belém do Pará 1">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold display-3">SIMULADOR DE IMPACTO</h2>
+                        <p class="hero-desc">Buscamos mostrar as mudanças que ocorreram em Belém em decorrência da cidade ser a sede do evento mundial COP-30.</p>
+                    </div>
+                </div>
+                <div class="carousel-item" data-bs-interval="3000">
+                    <img src="{% static 'img/belem2.jpg' %}" class="d-block w-100" alt="Belém do Pará 2">
+                    <div class="carousel-caption d-none d-md-block">
+                        <p class="hero-desc">
+                            <h2 class="fw-bold display-3">SIMULADOR DE IMPACTO</h2>
+                            Em nossa homepage, você pode ler as principais mudanças que a cidade de Belém do Pará e região passou recentemente com a chegada dos projetos e anunciação da COP-30.
+                        </p>
+                    </div>
+                </div>
+                <div class="carousel-item" data-bs-interval="3000">
+                    <img src="{% static 'img/belem3.jpg' %}" class="d-block w-100" alt="Belém do Pará 3">
+                    <div class="carousel-caption d-none d-md-block">
+                        <p class="hero-desc">
+                            <h2 class="fw-bold display-3">Análise Socioeconômica: Explore os Potenciais Impactos das Mudanças</h2>
+                        Você pode simular o empacto socioeconomico que essas mudanças podem trazer para a cidade ao
+                            <a href="#" class="btn-link-style">clicar aqui</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        <!-- FIM DO CARROSSEL -->
+
+        <div class="container marketing">
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7">
+                    <h2 class="featurette-heading fw-normal lh-1">Primeira imagem.</h2>
+                    <p class="lead">Descrição para a primeira imagem. Você pode colocar qualquer texto aqui.</p>
+                </div>
+                <div class="col-md-5">
+                    <img src="{% static 'img/belem1.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 1">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7 order-md-2">
+                    <h2 class="featurette-heading fw-normal lh-1">Segunda imagem.</h2>
+                    <p class="lead">Descrição para a segunda imagem. Personalize conforme desejar.</p>
+                </div>
+                <div class="col-md-5 order-md-1">
+                    <img src="{% static 'img/belem2.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 2">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7">
+                    <h2 class="featurette-heading fw-normal lh-1">Terceira imagem.</h2>
+                    <p class="lead">Descrição para a terceira imagem. Edite conforme sua necessidade.</p>
+                </div>
+                <div class="col-md-5">
+                    <img src="{% static 'img/belem3.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 3">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+        </div>
+        <div class="login-form-container" id="contato-section">
+          <form class="login-form" id="comment-form">
+            <div class="comentario-box mb-3">
+      <p class=" mb-3 text-center fs-5">Nos escreva um comentário :)</p>
+      <div class="form-floating mb-3">
+        <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+        <label for="floatingInput">Seu Email</label>
+      </div>
+      <div class="form-floating">
+        <textarea class="form-control" placeholder="Digite seu comentário aqui" id="floatingTextarea2" style="height: 100px"></textarea>
+        <label for="floatingTextarea2">Seu Comentário</label>
+      </div>
+    </div>
+          </form>
+        </div>
     </main>
-    <footer>
-        <p>Projeto EcoImpact - Faculdade</p>
+    <footer class="mt-auto text-white-50 text-center">
+        <p>Abraço pro indiano.<a href="https://github.com/Faidherb" class="text-white">Faidherb</a>, by <a href="https://github.com/ErrorDefault27" class="text-white">LOL</a>.</p>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% endblock %}
 </body>
+
+<!-- MODAL COM OS NOMES (ADICIONE ESTE BLOCO) -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="infoModalLabel">Desenvolvedores</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-unstyled">
+                    <li>Pedro Faidherb</li>
+                    <li>Edgar Cauã</li>
+                    <li>Marcelo Victor</li>
+                    <li>Daniel Camara</li>
+                    <li>Thiago Araujo</li>
+                    <li>Victor Kos</li>
+                    <li>Matheus Viana</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.offcanvas a.nav-link[href^="#"]').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      var target = this.getAttribute('href');
+      // Previne o comportamento padrão do link!
+      e.preventDefault();
+      // Fecha o offcanvas
+      var offcanvasEl = document.querySelector('.offcanvas.show');
+      if (offcanvasEl) {
+        var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
+        offcanvas.hide();
+      }
+      // Aguarda o menu fechar antes de rolar
+      setTimeout(function() {
+        if (target && document.querySelector(target)) {
+          document.querySelector(target).scrollIntoView({behavior: "smooth"});
+        }
+      }, 350);
+    });
+  });
+});
+</script>
+
 </html>
