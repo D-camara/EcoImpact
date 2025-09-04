@@ -4,7 +4,6 @@ from django.contrib import admin
 
 from .models import Cidade, Simulacao, Relatorio
 
-
 @admin.register(Cidade)
 class CidadeAdmin(admin.ModelAdmin):
     list_display = ("nome", "populacao", "pib_per_capita")
@@ -22,3 +21,6 @@ class SimulacaoAdmin(admin.ModelAdmin):
 class RelatorioAdmin(admin.ModelAdmin):
     list_display = ("simulacao", "criado_em")
     readonly_fields = ("criado_em",)
+
+
+## Admin de ImpactoEconomico removido.

@@ -1,7 +1,41 @@
 {% extends 'base.html' %}
 {% block title %}Resultado - EcoImpact{% endblock %}
 {% block content %}
-<h2>Resultado da Simulação (scaffold)</h2>
-<p>TODO: Renderizar resultados e gráficos aqui.</p>
-<p><a href="{% url 'simular' %}">Nova simulação</a></p>
+<h2>Resultado da Simulação</h2>
+{% if resultado %}
+	<section>
+		<h3>Resumo</h3>
+		<ul>
+			<li><strong>Cenário:</strong> {{ resultado.cenario|title }}</li>
+			<li><strong>Número de turistas:</strong> {{ resultado.numero_turistas }}</li>
+			<li><strong>Duração (dias):</strong> {{ resultado.duracao_estadia }}</li>
+			<li><strong>Gasto médio (R$):</strong> {{ resultado.gasto_medio }}</li>
+			<li><strong>Impacto Total (R$):</strong> {{ resultado.impacto_total }}</li>
+			<li><strong>Gasto Total (R$):</strong> {{ resultado.gasto_total }}</li>
+			<li><strong>Gasto Ajustado (R$):</strong> {{ resultado.gasto_total_ajustado }}</li>
+			<li><strong>Multiplicador:</strong> {{ resultado.multiplicador }}</li>
+			<li><strong>Ajuste Cidades:</strong> {{ resultado.ajuste_cidades }}</li>
+			<li><strong>Fator Duração:</strong> {{ resultado.fator_duracao }}</li>
+			<li><strong>Nº Cidades:</strong> {{ resultado.n_cidades }}</li>
+		</ul>
+	</section>
+	<section>
+		<h3>Impacto por Cidade</h3>
+		<table border="1" cellpadding="4" cellspacing="0">
+			<thead><tr><th>Cidade</th><th>Impacto (R$)</th></tr></thead>
+			<tbody>
+				{% for nome, valor in resultado.impacto_por_cidade.items %}
+					<tr><td>{{ nome }}</td><td>{{ valor }}</td></tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</section>
+	<section>
+		<h3>Parâmetros Enviados</h3>
+		<pre style="background:#f5f5f5;padding:8px;">{{ params|safe|json_script:"params-json" }}</pre>
+	</section>
+{% else %}
+	<p>Nenhum resultado disponível.</p>
+{% endif %}
+<p style="margin-top:1rem;"><a href="{% url 'simular' %}">Nova simulação</a></p>
 {% endblock %}

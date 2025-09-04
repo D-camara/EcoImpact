@@ -1,7 +1,4 @@
-"""Modelos de domínio (scaffolding).
-
-Implemente os campos que desejarem manter. Estrutura básica pronta.
-"""
+"""Modelagem mínima: Cidade, Simulacao, Relatorio."""
 
 from __future__ import annotations
 
@@ -12,6 +9,7 @@ class Cidade(models.Model):
     nome = models.CharField(max_length=120, unique=True)
     populacao = models.PositiveIntegerField()
     pib_per_capita = models.DecimalField(max_digits=12, decimal_places=2)
+    estado = models.CharField(max_length=50, default="Pará", help_text="Unidade federativa (default Pará)")
 
     class Meta:
         ordering = ["nome"]
@@ -39,3 +37,6 @@ class Relatorio(models.Model):
 
     def __str__(self) -> str:
         return f"Relatório Simulação {self.simulacao_id}"
+
+
+## Modelo ImpactoEconomico removido (fora do escopo atual).
