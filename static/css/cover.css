@@ -43,7 +43,7 @@ body {
 .featurette-image {
   width: 100%;
   max-width: 900px;
-  height: 400px;
+  height: 500px;
   object-fit: cover;
   background: #e9ecef;
   display: block;
@@ -227,8 +227,21 @@ body {
   box-shadow: none !important;
 }
 
+#comment-form .form-control:focus {
+  background-color: #646464 !important;
+  color: #fff !important;
+  border-color: #838383 !important;
+  box-shadow: none !important;
+}
+
 #comment-form .form-floating label {
   color: #ffffff;
+}
+
+#comment-form .form-floating .form-control:focus ~ label,
+#comment-form .form-floating .form-control:not(:placeholder-shown) ~ label {
+  background-color: transparent !important;
+  color: #ffffff !important;
 }
 
 .form-floating .form-control:disabled,
@@ -258,6 +271,29 @@ body {
   order: 2;
   text-align: center;
   margin-top: -5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container.marketing .row.featurette .col-md-7 p.lead {
+  max-width: 900px !important;
+  margin: 0 !important;
+  line-height: 1.6 !important;
+  text-align: justify !important;
+  hyphens: auto !important;
+  width: 900px !important;
+}
+
+/* Regra adicional para garantir alinhamento justificado */
+.featurette .lead {
+  text-align: justify !important;
+}
+
+/* Centralizando apenas os títulos e adicionando espaçamento */
+.featurette .featurette-heading {
+  text-align: center !important;
+  margin-bottom: 2rem !important;
 }
 
 @media (prefers-reduced-motion: no-preference) {

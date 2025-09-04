@@ -70,14 +70,14 @@
                             <a class="nav-link active" aria-current="page" href="#">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Simular Resultados</a>
+                            <a class="nav-link" href="#">Simular Impactos</a>
                         </li>
                          <li class="nav-item">
                             <a class="nav-link" href="#contato-section" data-bs-dismiss="offcanvas">Contato</a>
                         </li>
                     </ul>
                     <form class="d-flex mt-3" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Procurar">
                         <button class="btn btn-outline-success" type="submit">Digite Algo</button>
                     </form>
                 </div>
@@ -90,15 +90,15 @@
                 <div class="carousel-item active" data-bs-interval="3000">
                     <img src="{% static 'img/belem1.jpg' %}" class="d-block w-100" alt="Belém do Pará 1">
                     <div class="carousel-caption d-none d-md-block">
-                        <h2 class="fw-bold display-3">SIMULADOR DE IMPACTO</h2>
+                        <h2 class="fw-bold display-3">Simulador de Impacto</h2>
                         <p class="hero-desc">Buscamos mostrar as mudanças que ocorreram em Belém em decorrência da cidade ser a sede do evento mundial COP-30.</p>
                     </div>
                 </div>
                 <div class="carousel-item" data-bs-interval="3000">
                     <img src="{% static 'img/belem2.jpg' %}" class="d-block w-100" alt="Belém do Pará 2">
                     <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold display-3">Transformações em Belém: Um Novo Momento para a Cidade</h2>
                         <p class="hero-desc">
-                            <h2 class="fw-bold display-3">SIMULADOR DE IMPACTO</h2>
                             Em nossa homepage, você pode ler as principais mudanças que a cidade de Belém do Pará e região passou recentemente com a chegada dos projetos e anunciação da COP-30.
                         </p>
                     </div>
@@ -106,9 +106,9 @@
                 <div class="carousel-item" data-bs-interval="3000">
                     <img src="{% static 'img/belem3.jpg' %}" class="d-block w-100" alt="Belém do Pará 3">
                     <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold display-3">Análise Socioeconômica: Explore os Potenciais Impactos das Mudanças</h2>
                         <p class="hero-desc">
-                            <h2 class="fw-bold display-3">Análise Socioeconômica: Explore os Potenciais Impactos das Mudanças</h2>
-                        Você pode simular o empacto socioeconomico que essas mudanças podem trazer para a cidade ao
+                            Você pode simular o impacto socioeconômico que essas mudanças podem trazer para a cidade ao
                             <a href="#" class="btn-link-style">clicar aqui</a>.
                         </p>
                     </div>
@@ -116,44 +116,115 @@
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
+                <span class="visually-hidden">Voltar</span>
             </button>
             <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
+                <span class="visually-hidden">Próximo</span>
             </button>
         </div>
-        <!-- FIM DO CARROSSEL -->
 
         <div class="container marketing">
             <hr class="featurette-divider">
             <div class="row featurette">
                 <div class="col-md-7">
-                    <h2 class="featurette-heading fw-normal lh-1">Primeira imagem.</h2>
-                    <p class="lead">Descrição para a primeira imagem. Você pode colocar qualquer texto aqui.</p>
+                    <h2 class="featurette-heading fw-normal lh-1">Reabertura do Mercado de São Brás</h2>
+                    <p class="lead">O Mercado de São Brás, um importante patrimônio histórico de Belém, foi oficialmente reaberto ao público em 17 de setembro de 2024, após cerca de 14 meses fechado para uma grande reforma. No entanto, a reabertura foi parcial, com a liberação de apenas um pavilhão destinado a eventos, enquanto o restante do complexo continua em obras. A conclusão total do projeto, orçado em R$ 118,3 milhões, está prevista para novembro do mesmo ano.</p>
+                    
+                    <p class="lead">Quando finalizado, o espaço revitalizado contará com 330 estabelecimentos comerciais, abrigando tanto os 193 feirantes antigos quanto novos negócios. O projeto, assinado pelo arquiteto Aurélio Meira, prevê a criação de um restaurante de alta gastronomia, um centro de convenções e áreas para feiras, mantendo a arquitetura histórica do prédio, que mistura os estilos art nouveau e neoclássico. A expectativa é que a obra completa gere mais de 3 mil empregos diretos e indiretos.</p>
                 </div>
                 <div class="col-md-5">
-                    <img src="{% static 'img/belem1.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 1">
+                    <img src="{% static 'img/mercado.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 1">
                 </div>
             </div>
             <hr class="featurette-divider">
             <div class="row featurette">
                 <div class="col-md-7 order-md-2">
-                    <h2 class="featurette-heading fw-normal lh-1">Segunda imagem.</h2>
-                    <p class="lead">Descrição para a segunda imagem. Personalize conforme desejar.</p>
+                    <h2 class="featurette-heading fw-normal lh-1">Pavimentação de Bairros</h2>
+                    <p class="lead">As obras para a COP30 em Belém estão deixando um legado de infraestrutura para a cidade, como a pavimentação de 279 vias (quase 89 km) em 32 bairros, incluindo áreas de baixa renda. A renovação da frota de transporte público, com a previsão de 265 novos ônibus (elétricos e a diesel com tecnologia Euro 6), também faz parte das melhorias.</p>
+                    
+                    <p class="lead">Silvio de Oliveira, morador de Belém, relata que já percebe os impactos positivos no dia a dia. Ele destaca que, além das grandes obras visuais como a Nova Doca e o Parque da Cidade, a melhoria das ruas tornou o deslocamento diário mais rápido e seguro. Para ele, apesar dos transtornos temporários, as intervenções representam uma oportunidade de crescimento para o estado e trazem uma sensação de esperança e expectativa de que os benefícios serão duradouros para a população.</p>
                 </div>
                 <div class="col-md-5 order-md-1">
-                    <img src="{% static 'img/belem2.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 2">
+                    <img src="{% static 'img/fotospavi.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 2">
                 </div>
             </div>
             <hr class="featurette-divider">
             <div class="row featurette">
                 <div class="col-md-7">
-                    <h2 class="featurette-heading fw-normal lh-1">Terceira imagem.</h2>
-                    <p class="lead">Descrição para a terceira imagem. Edite conforme sua necessidade.</p>
+                    <h2 class="featurette-heading fw-normal lh-1">Ver-o-Peso e a COP 30</h2>
+                    <p class="lead">O Mercado Ver-o-Peso, um dos mais icônicos cartões-postais de Belém, está no centro das atenções para a COP 30, com um ambicioso projeto de restauração. A reforma, aguardada há décadas, visa revitalizar completamente o complexo, que é um patrimônio histórico tombado. As intervenções planejadas são profundas, incluindo a renovação das estruturas de ferro, a modernização das instalações elétricas e hidráulicas, e a implementação de um novo sistema de saneamento para resolver problemas crônicos de higiene e alagamentos.</p>
+                    
+                    <p class="lead">A obra é considerada um legado fundamental da COP 30 para a cidade, buscando não apenas apresentar uma imagem renovada aos visitantes do evento, mas principalmente oferecer melhores condições de trabalho para os feirantes e uma experiência mais agradável e segura para a população e turistas. O projeto prevê a reorganização dos setores e a padronização das barracas, com o objetivo de transformar o Ver-o-Peso em um espaço mais organizado, funcional e que honre sua imensa importância cultural e turística para a Amazônia.</p>
                 </div>
                 <div class="col-md-5">
-                    <img src="{% static 'img/belem3.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 3">
+                    <img src="{% static 'img/verinho.jpeg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 3">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7 order-md-2">
+                    <h2 class="featurette-heading fw-normal lh-1">Saneamento e Lazer em Belém</h2>
+                    <p class="lead">Grandes obras de macrodrenagem e saneamento básico em Belém estão programadas para beneficiar diretamente mais de 500 mil pessoas, o que representa mais de um terço da população da capital paraense. As intervenções abrangem 13 canais estratégicos, a maioria em áreas periféricas, com o objetivo principal de reduzir os alagamentos crônicos da cidade e melhorar a qualidade de vida através da coleta de esgoto e escoamento de águas pluviais.</p>
+                    
+                    <p class="lead">Além do impacto funcional, os projetos buscam ressignificar esses espaços, transformando áreas antes degradadas em novos centros de convivência e lazer. Exemplos como os Parques Lineares Tamandaré e Nova Doca, ambos com obras avançadas, estão introduzindo áreas verdes, ciclovias, playgrounds e academias ao ar livre. A visão é mudar a percepção dos canais, convidando a população a usufruir desses locais como ambientes agradáveis e sustentáveis, e não apenas como estruturas de drenagem.</p>
+                </div>
+                <div class="col-md-5 order-md-1">
+                    <img src="{% static 'img/sanebasico.jpeg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 1">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7">
+                    <h2 class="featurette-heading fw-normal lh-1">Belém: Vitrine e Esgoto</h2>
+                    <p class="lead">Em Belém, cidade-sede da COP 30, um contraste gritante expõe a desigualdade social por trás das obras para o evento. Moradores da Vila da Barca, uma histórica comunidade de palafitas que nunca teve saneamento básico, protestam contra a construção de uma estação de esgoto em seu território. A estrutura não servirá à comunidade, mas sim bombeará os dejetos de áreas nobres da cidade, como o bairro da Doca, que estão sendo revitalizadas para a conferência.</p>
+                    
+                    <p class="lead">A controvérsia se aprofunda com a alegação dos moradores de que não houve consulta prévia sobre a obra e o medo de riscos ambientais, como vazamentos e mau cheiro, em uma área já extremamente vulnerável. Enquanto a estação para o esgoto das áreas nobres avança, um projeto separado para levar saneamento à própria Vila da Barca foi anunciado posteriormente e tem um cronograma mais lento.</p>
+                    
+                    <p class="lead">Este cenário na Vila da Barca é um exemplo claro de injustiça ambiental e gentrificação, onde o progresso para a elite é construído sobre a negligência das populações mais pobres. A comunidade, que vive há mais de um século à margem do desenvolvimento, agora se vê no centro de uma obra que beneficia os bairros ricos, sem receber os mesmos investimentos em infraestrutura básica.</p>
+                </div>
+                <div class="col-md-5">
+                    <img src="{% static 'img/palafitas.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 2">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7 order-md-2">
+                    <h2 class="featurette-heading fw-normal lh-1">Preços Abusivos na COP 30</h2>
+                    <p class="lead">Órgãos de defesa do consumidor no Pará, como a Defensoria Pública e o Procon, notificaram as principais plataformas de hospedagem (Airbnb, Booking.com e Decolar) para combater os preços abusivos cobrados para o período da COP 30. A recomendação exige que as empresas alertem os anfitriões cujos preços excedam em três vezes a média da alta temporada e suspendam os anúncios que não forem ajustados em 48 horas.</p>
+                    
+                    <p class="lead">Em resposta, as plataformas alegam que atuam apenas como intermediárias e não têm controle sobre os preços, que são definidos pelos próprios anfitriões. A Booking.com foi mais enfática, afirmando que, por questões contratuais, não pode excluir unilateralmente os anúncios com base nos valores cobrados. Todas as empresas se colocaram à disposição para colaborar com as autoridades, mas ressaltaram as limitações legais de sua atuação.</p>
+                    
+                    <p class="lead">A questão é crítica, pois as hospedagens residenciais representam 60% dos leitos disponíveis para a conferência. A notificação tem força de título executivo, o que significa que o descumprimento pode acarretar penalidades legais. Além da ação estadual, a Secretaria Nacional do Consumidor (Senacon) também está apurando as práticas abusivas, evidenciando a gravidade e a complexidade do problema da especulação de preços em torno da COP 30.</p>
+                </div>
+                <div class="col-md-5 order-md-1">
+                    <img src="{% static 'img/hoteis.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 3">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7">
+                    <h2 class="featurette-heading fw-normal lh-1">Controvérsia na Avenida da COP30</h2>
+                    <p class="lead">A construção da Avenida Liberdade em Belém, uma obra de 13,4 km que corta uma área de floresta, avança em meio a graves controvérsias ambientais e sociais, a poucos meses da COP30. Embora o governo do Pará negue que o projeto esteja ligado à conferência climática, o ritmo acelerado das obras coincide com os preparativos para o evento.</p>
+                    
+                    <p class="lead">Os danos ambientais apontados por especialistas são alarmantes e potencialmente irreversíveis. A obra atravessa a Área de Proteção Ambiental (APA) Metropolitana de Belém, causando desmatamento, erosão e assoreamento de igarapés que são vitais para o abastecimento de água da cidade. Além disso, a construção fragmenta o ecossistema, isolando o Parque Estadual do Utinga e ameaçando a biodiversidade local.</p>
+                    
+                    <p class="lead">O impacto humano é igualmente severo, com comunidades tradicionais, como o Quilombo do Abacatal, relatando a destruição de suas fontes de subsistência e a falta de consulta prévia, um direito garantido por lei. Moradores afirmam que a obra destruiu nascentes de água, bloqueou o acesso a áreas de extrativismo com muros de concreto e resultou na remoção de casas sem a devida indenização.</p>
+                </div>
+                <div class="col-md-5">
+                    <img src="{% static 'img/liberdade.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 1">
+                </div>
+            </div>
+            <hr class="featurette-divider">
+            <div class="row featurette">
+                <div class="col-md-7 order-md-2">
+                    <h2 class="featurette-heading fw-normal lh-1">Crises na Periferia</h2>
+                    <p class="lead">Devido às obras de infraestrutura promovidas para a realização da COP-30, projetos de saneamento e macrodrenagem, especialmente na região do canal da Timbó, preveem a demolição de casas, o que pode levar ao deslocamento de várias famílias. Essa situação tem gerado preocupação, pois muitos moradores não sabem se receberão compensações justas ou para onde irão após a remoção, aumentando a insegurança e a sensação de exclusão social.</p>
+                    
+                    <p class="lead">Além do impacto direto sobre as moradias, as obras têm transformado o cotidiano das comunidades, criando ruas vazias e alterando a dinâmica local. A reportagem da Folha destaca relatos de moradores sobre o medo de perder suas casas e a falta de participação no processo de decisão das intervenções. Enquanto a cidade se prepara para receber um evento internacional de grande porte, as populações mais vulneráveis sentem os efeitos negativos das mudanças, evidenciando o desafio de equilibrar desenvolvimento urbano e justiça social.</p>
+                </div>
+                <div class="col-md-5 order-md-1">
+                    <img src="{% static 'img/periferi.jpg' %}" class="featurette-image img-fluid mx-auto" alt="Belem 2">
                 </div>
             </div>
             <hr class="featurette-divider">
