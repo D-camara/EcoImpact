@@ -1,17 +1,21 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" class="h-100" data-bs-theme="dark">
+<html lang="en" class="h-100" data-bs-theme="">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Astro v5.9.2">
     <title>FaculdadeEcolmpact</title>
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/cover/">
     <script src="../assets/js/color-modes.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- ALTERADO PARA IMPORTAR A FONTE RUBIK COM PESO 495 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@495&display=swap" rel="stylesheet">
+
     <link href="{% static 'css/cover.css' %}" rel="stylesheet">
 </head>
 
@@ -34,6 +38,14 @@
     <nav class="navbar navbar-dark bg-dark" aria-label="Dark offcanvas navbar">
         <div class="container-fluid">
             <div class="d-flex align-items-center justify-content-center w-100 position-relative">
+                <!-- ÍCONE DE INFORMAÇÃO MODIFICADO PARA ABRIR O MODAL -->
+                <a href="#" class="position-absolute start-0 p-2 text-white" data-bs-toggle="modal" data-bs-target="#infoModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-info-square" viewBox="0 0 16 16">
+                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                    </svg>
+                </a>
+
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-leaf me-2"
                     viewBox="0 0 16 16">
                     <path
@@ -61,19 +73,7 @@
                             <a class="nav-link" href="#">Simular Resultados</a>
                         </li>
                          <li class="nav-item">
-                            <a class="nav-link" href="#contato-section">Contato</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Expandir
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Action</a></li>
-                                <li><a class="dropdown-item" href="#">Another action</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                            </ul>
+                            <a class="nav-link" href="#contato-section" data-bs-dismiss="offcanvas">Contato</a>
                         </li>
                     </ul>
                     <form class="d-flex mt-3" role="search">
@@ -85,14 +85,46 @@
         </div>
     </nav>
     <main>
-        <div class="hero-section d-flex align-items-center justify-content-center text-white">
-            <div class="text-center">
-                <h2>Projeto Ecolmpact</h2>
-                <p class="hero-desc">Buscamos Mostrar As Mudanças(obras e projetos) Que Ocorreram em Belém Em Decorrencia Da Cidade Ser A Sede Do Evento Mundial COP-30.</p>
-                <a href="#" class="btn btn-lg btn-light fw-bold border-white bg-white me-2">Leia mais sobre Belém do Pará</a>
-                <a href="#" class="btn btn-lg btn-light fw-bold border-white bg-white">Simular</a>
+        <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active" data-bs-interval="3000">
+                    <img src="{% static 'img/belem1.jpg' %}" class="d-block w-100" alt="Belém do Pará 1">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold display-3">SIMULADOR DE IMPACTO</h2>
+                        <p class="hero-desc">Buscamos mostrar as mudanças que ocorreram em Belém em decorrência da cidade ser a sede do evento mundial COP-30.</p>
+                    </div>
+                </div>
+                <div class="carousel-item" data-bs-interval="3000">
+                    <img src="{% static 'img/belem2.jpg' %}" class="d-block w-100" alt="Belém do Pará 2">
+                    <div class="carousel-caption d-none d-md-block">
+                        <p class="hero-desc">
+                            <h2 class="fw-bold display-3">SIMULADOR DE IMPACTO</h2>
+                            Em nossa homepage, você pode ler as principais mudanças que a cidade de Belém do Pará e região passou recentemente com a chegada dos projetos e anunciação da COP-30.
+                        </p>
+                    </div>
+                </div>
+                <div class="carousel-item" data-bs-interval="3000">
+                    <img src="{% static 'img/belem3.jpg' %}" class="d-block w-100" alt="Belém do Pará 3">
+                    <div class="carousel-caption d-none d-md-block">
+                        <p class="hero-desc">
+                            <h2 class="fw-bold display-3">Análise Socioeconômica: Explore os Potenciais Impactos das Mudanças</h2>
+                        Você pode simular o empacto socioeconomico que essas mudanças podem trazer para a cidade ao
+                            <a href="#" class="btn-link-style">clicar aqui</a>.
+                        </p>
+                    </div>
+                </div>
             </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
         </div>
+        <!-- FIM DO CARROSSEL -->
+
         <div class="container marketing">
             <hr class="featurette-divider">
             <div class="row featurette">
@@ -143,41 +175,58 @@
         </div>
     </main>
     <footer class="mt-auto text-white-50 text-center">
-        <p>Abraço pro indiano.<a href="https://getbootstrap.com/" class="text-white">Faidherb</a>, by <a href="https://x.com/mdo" class="text-white">LOL</a>.</p>
+        <p>Abraço pro indiano.<a href="https://github.com/Faidherb" class="text-white">Faidherb</a>, by <a href="https://github.com/ErrorDefault27" class="text-white">LOL</a>.</p>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- SCRIPT FINAL PARA FECHAR O MENU E ROLAR CORRETAMENTE -->
-    <script>
-      const navLinks = document.querySelectorAll('#offcanvasNavbarDark .nav-link');
-      const offcanvasElement = document.getElementById('offcanvasNavbarDark');
-
-      navLinks.forEach(link => {
-        link.addEventListener('click', function(event) {
-          const href = this.getAttribute('href');
-
-          // Verifica se é um link de âncora (começa com #)
-          if (href && href.startsWith('#')) {
-            event.preventDefault(); // Previne o comportamento padrão do link
-
-            const targetElement = document.querySelector(href);
-            const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
-
-            if (targetElement && bsOffcanvas) {
-              // Adiciona um listener que só dispara UMA VEZ, APÓS o menu fechar
-              offcanvasElement.addEventListener('hidden.bs.offcanvas', function () {
-                targetElement.scrollIntoView({
-                  behavior: 'smooth'
-                });
-              }, { once: true }); // A opção 'once: true' remove o listener após o uso
-
-              // Inicia o processo de fechar o menu
-              bsOffcanvas.hide();
-            }
-          }
-        });
-      });
-    </script>
 </body>
+
+<!-- MODAL COM OS NOMES (ADICIONE ESTE BLOCO) -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="infoModalLabel">Desenvolvedores</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-unstyled">
+                    <li>Pedro Faidherb</li>
+                    <li>Edgar Cauã</li>
+                    <li>Marcelo Victor</li>
+                    <li>Daniel Camara</li>
+                    <li>Thiago Araujo</li>
+                    <li>Victor Kos</li>
+                    <li>Matheus Viana</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.offcanvas a.nav-link[href^="#"]').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      var target = this.getAttribute('href');
+      // Previne o comportamento padrão do link!
+      e.preventDefault();
+      // Fecha o offcanvas
+      var offcanvasEl = document.querySelector('.offcanvas.show');
+      if (offcanvasEl) {
+        var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
+        offcanvas.hide();
+      }
+      // Aguarda o menu fechar antes de rolar
+      setTimeout(function() {
+        if (target && document.querySelector(target)) {
+          document.querySelector(target).scrollIntoView({behavior: "smooth"});
+        }
+      }, 350);
+    });
+  });
+});
+</script>
 
 </html>
