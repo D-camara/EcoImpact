@@ -5,6 +5,26 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
+import json
+
+from .models import Cidade, Simulacao, Relatorio
+from .services import calcular_impacto_economico, calcular_impacto_ambiental, ParametrosInvalidos
+
+from .forms import SimulacaoForm
+
+
+def _preparar_dados_relatorio_default():
+    """Prepara dados padrão para campos obrigatórios do relatório."""
+    return {
+        'alternativas_sustentaveis': json.dumps([], ensure_ascii=False),
+        'impacto_ambiental': json.dumps({}, ensure_ascii=False),
+        'metas_cop30_alinhamento': json.dumps({}, ensure_ascii=False),
+        'recomendacoes': json.dumps([], ensure_ascii=False),
+    }
+from django.shortcuts import render, get_object_or_404
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
 
 from .models import Cidade, Simulacao, Relatorio
 from .services import calcular_impacto_economico, calcular_impacto_ambiental, ParametrosInvalidos
@@ -88,7 +108,23 @@ def api_simular(request: HttpRequest) -> JsonResponse:
         return JsonResponse({"erro": f"Falha ao calcular: {e}"}, status=500)
 
     with transaction.atomic():
-        simulacao = Simulacao.objects.create(cidade=cidade, parametros=parametros_simulacao)
+        # Extrair valores dos parâmetros para campos específicos
+        numero_turistas = parametros_simulacao.get('numero_turistas', 1)
+        duracao_estadia = parametros_simulacao.get('duracao_estadia', 1)
+        cenario = parametros_simulacao.get('cenario', 'realista')
+        gasto_medio = parametros_simulacao.get('gasto_medio')
+        
+        simulacao = Simulacao.objects.create(
+            cidade=cidade, 
+            parametros=parametros_simulacao,
+            numero_turistas=numero_turistas,
+            duracao_estadia=duracao_estadia,
+            cenario=cenario,
+            gasto_medio=gasto_medio,
+            atividades_sustentaveis=True,
+            compensacao_carbono=True,
+            status='ativo'
+        )
         Relatorio.objects.create(simulacao=simulacao, resultado=resultado)
 
     return JsonResponse({
@@ -258,7 +294,23 @@ def salvar_resultado(request: HttpRequest) -> JsonResponse:
             return JsonResponse({"simulacao_id": s.id, "duplicate": True}, status=200)
 
     with transaction.atomic():
-        simulacao = Simulacao.objects.create(cidade=cidade, parametros=parametros_simulacao)
+        # Extrair valores dos parâmetros para campos específicos
+        numero_turistas = parametros_simulacao.get('numero_turistas', 1)
+        duracao_estadia = parametros_simulacao.get('duracao_estadia', 1)
+        cenario = parametros_simulacao.get('cenario', 'realista')
+        gasto_medio = parametros_simulacao.get('gasto_medio')
+        
+        simulacao = Simulacao.objects.create(
+            cidade=cidade, 
+            parametros=parametros_simulacao,
+            numero_turistas=numero_turistas,
+            duracao_estadia=duracao_estadia,
+            cenario=cenario,
+            gasto_medio=gasto_medio,
+            atividades_sustentaveis=True,
+            compensacao_carbono=True,
+            status='ativo'
+        )
         Relatorio.objects.create(simulacao=simulacao, resultado=resultado)
 
     return JsonResponse({"simulacao_id": simulacao.id, "duplicate": False}, status=201)

@@ -259,56 +259,57 @@
                 valorMultiplicadorSpan.textContent = parseFloat(inputMultiplicador.value).toFixed(1);
                 debouncedAtualizar();
             });
-            // Save button handler
-            const btnSalvar = document.getElementById('btn-salvar');
-            if (btnSalvar) {
-                let isSaving = false;
-                btnSalvar.addEventListener('click', async () => {
-                    if (isSaving) return; // prevent double-clicks
-                    isSaving = true;
-                    btnSalvar.disabled = true;
-                    const originalText = btnSalvar.textContent;
-                    btnSalvar.textContent = 'Salvando...';
-                    // gather current params (same mapping used for calcular)
-                    const params = {
-                        numero_turistas: parseFloat(inputPessoas.value) || 0,
-                        duracao_estadia: parseFloat(inputDias.value) || 0,
-                        consumo_agua_por_pessoa: parseFloat(inputAgua.value) || 0,
-                        taxa_reciclagem: parseFloat(inputReciclagem.value) || 0,
-                        gasto_medio: parseFloat(inputGastoTurista.value) || 0,
-                        multiplicador: parseFloat(inputMultiplicador.value) || undefined,
-                    };
-                    if (cidadePrincipal && cidadePrincipal.value) {
-                        params.cidade_id = cidadePrincipal.value;
-                        const nome = cidadePrincipal.options[cidadePrincipal.selectedIndex].text;
-                        params.cidades_visitadas = [nome];
-                    }
-                    try {
-                        const resp = await fetch(`{% url 'simulacao:salvar_resultado' %}`, {
-                            method: 'POST',
-                            credentials: 'same-origin',
-                            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-                            body: JSON.stringify(params)
-                        });
-                        if (!resp.ok) throw new Error('Falha ao salvar');
-                        const j = await resp.json();
-                        if (j.simulacao_id) {
-                            alert('Simulação salva (id: ' + j.simulacao_id + (j.duplicate ? ' — já existente recente' : '') + ')');
-                        } else {
-                            alert('Resposta inesperada do servidor.');
-                        }
-                    } catch (e) {
-                        console.error('Erro ao salvar:', e);
-                        alert('Erro ao salvar: ' + e.message);
-                    }
-                    finally {
-                        isSaving = false;
-                        btnSalvar.disabled = false;
-                        btnSalvar.textContent = originalText;
-                    }
-                });
-            }
         });
+
+        // Save button handler (moved outside the forEach loop to prevent multiple listeners)
+        const btnSalvar = document.getElementById('btn-salvar');
+        if (btnSalvar) {
+            let isSaving = false;
+            btnSalvar.addEventListener('click', async () => {
+                if (isSaving) return; // prevent double-clicks
+                isSaving = true;
+                btnSalvar.disabled = true;
+                const originalText = btnSalvar.textContent;
+                btnSalvar.textContent = 'Salvando...';
+                // gather current params (same mapping used for calcular)
+                const params = {
+                    numero_turistas: parseFloat(inputPessoas.value) || 0,
+                    duracao_estadia: parseFloat(inputDias.value) || 0,
+                    consumo_agua_por_pessoa: parseFloat(inputAgua.value) || 0,
+                    taxa_reciclagem: parseFloat(inputReciclagem.value) || 0,
+                    gasto_medio: parseFloat(inputGastoTurista.value) || 0,
+                    multiplicador: parseFloat(inputMultiplicador.value) || undefined,
+                };
+                if (cidadePrincipal && cidadePrincipal.value) {
+                    params.cidade_id = cidadePrincipal.value;
+                    const nome = cidadePrincipal.options[cidadePrincipal.selectedIndex].text;
+                    params.cidades_visitadas = [nome];
+                }
+                try {
+                    const resp = await fetch(`{% url 'simulacao:salvar_resultado' %}`, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+                        body: JSON.stringify(params)
+                    });
+                    if (!resp.ok) throw new Error('Falha ao salvar');
+                    const j = await resp.json();
+                    if (j.simulacao_id) {
+                        alert('Simulação salva (id: ' + j.simulacao_id + (j.duplicate ? ' — já existente recente' : '') + ')');
+                    } else {
+                        alert('Resposta inesperada do servidor.');
+                    }
+                } catch (e) {
+                    console.error('Erro ao salvar:', e);
+                    alert('Erro ao salvar: ' + e.message);
+                }
+                finally {
+                    isSaving = false;
+                    btnSalvar.disabled = false;
+                    btnSalvar.textContent = originalText;
+                }
+            });
+        }
         console.log(document.getElementById('graficoEconomico'));
 console.log(document.getElementById('graficoImpactos'));
     </script>
