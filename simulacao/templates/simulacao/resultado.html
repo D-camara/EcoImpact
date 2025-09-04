@@ -6,7 +6,7 @@
 	<section>
 		<h3>Resumo</h3>
 		<ul>
-			<li><strong>Cenário:</strong> {{ resultado.cenario|title }}</li>
+			<!-- Cenário removed -->
 			<li><strong>Número de turistas:</strong> {{ resultado.numero_turistas }}</li>
 			<li><strong>Duração (dias):</strong> {{ resultado.duracao_estadia }}</li>
 			<li><strong>Gasto médio (R$):</strong> {{ resultado.gasto_medio }}</li>
@@ -29,6 +29,22 @@
 				{% endfor %}
 			</tbody>
 		</table>
+	</section>
+	<section>
+		<h3>Impacto Ambiental (estimado)</h3>
+		{% if resultado_ambiental %}
+			<ul>
+				<li><strong>Água total (L):</strong> {{ resultado_ambiental.total_agua_l }}</li>
+				<li><strong>Lixo total (kg):</strong> {{ resultado_ambiental.total_lixo_kg }}</li>
+				<li><strong>Lixo não reciclado (kg):</strong> {{ resultado_ambiental.lixo_nao_reciclado_kg }}</li>
+				<li><strong>Energia para água (kWh):</strong> {{ resultado_ambiental.energia_da_agua_kwh }}</li>
+				<li><strong>CO₂ - energia (kg):</strong> {{ resultado_ambiental.co2_da_energia_kg }}</li>
+				<li><strong>CO₂ - lixo (kg):</strong> {{ resultado_ambiental.co2_do_lixo_kg }}</li>
+				<li><strong>CO₂ total (kg):</strong> {{ resultado_ambiental.co2_total_kg }}</li>
+			</ul>
+		{% else %}
+			<p>Dados ambientais não disponíveis para esta simulação.</p>
+		{% endif %}
 	</section>
 	<section>
 		<h3>Parâmetros Enviados</h3>

@@ -47,7 +47,6 @@ def calcular_impacto_economico(parametros: Dict[str, Any]) -> Dict[str, Any]:
             lista_cidades = []
             n_cidades = 0
 
-        cenario = str(parametros.get('cenario', 'realista')).lower()
         multiplicador_input = parametros.get('multiplicador')
     except (ValueError, TypeError) as e:
         raise ParametrosInvalidos(f"Erro ao converter parâmetros: {e}")
@@ -61,16 +60,8 @@ def calcular_impacto_economico(parametros: Dict[str, Any]) -> Dict[str, Any]:
         raise ParametrosInvalidos("duracao_estadia deve ser > 0")
     if n_cidades <= 0:
         raise ParametrosInvalidos("cidades_visitadas deve conter pelo menos 1 cidade")
-    if cenario not in {"conservador", "realista", "otimista"}:
-        raise ParametrosInvalidos("cenario inválido (use conservador|realista|otimista)")
-
-    # --- Multiplicadores por cenário (se não fornecido explicitamente) ---
-    tabela_cenarios = {
-        'conservador': 0.9,
-        'realista': 1.0,
-        'otimista': 1.15,
-    }
-    multiplicador = Decimal(str(multiplicador_input)) if multiplicador_input is not None else Decimal(str(tabela_cenarios[cenario]))
+    # --- Multiplicador padrão caso não seja fornecido ---
+    multiplicador = Decimal(str(multiplicador_input)) if multiplicador_input is not None else Decimal('1.0')
     if multiplicador <= 0:
         raise ParametrosInvalidos("multiplicador deve ser > 0")
 
@@ -89,12 +80,12 @@ def calcular_impacto_economico(parametros: Dict[str, Any]) -> Dict[str, Any]:
         return float(v.quantize(places, rounding=ROUND_HALF_UP))
     breakdown_cidades = {nome: q(impacto_por_cidade) for nome in lista_cidades}
 
-    return {
+    result = {
         'impacto_total': q(impacto_total),
         'gasto_total': q(gasto_total),
         'gasto_total_ajustado': q(gasto_ajustado),
         'multiplicador': float(multiplicador.quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP)),
-        'cenario': cenario,
+    # 'cenario' removed
         'ajuste_cidades': float(Decimal(str(ajuste_cidades)).quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP)),
         'fator_duracao': float(Decimal(str(fator_duracao)).quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP)),
         'numero_turistas': numero_turistas,
@@ -104,4 +95,49 @@ def calcular_impacto_economico(parametros: Dict[str, Any]) -> Dict[str, Any]:
         'impacto_por_cidade': breakdown_cidades,
         'n_cidades': n_cidades,
         'ok': True
+    }
+    return result
+
+
+def calcular_impacto_ambiental(parametros: Dict[str, Any]) -> Dict[str, Any]:
+    """Calcula impacto ambiental usando os mesmos fatores do simulador JS.
+
+    Espera parâmetros:
+      numero_turistas, duracao_estadia, consumo_agua_por_pessoa (L/dia), taxa_reciclagem (%)
+
+    Retorna: total_agua_l (litros), total_lixo_kg, co2_total_kg, detalhes.
+    """
+    try:
+        numero_turistas = int(parametros.get('numero_turistas', 0))
+        duracao_estadia = int(parametros.get('duracao_estadia', 0))
+        consumo_agua_por_pessoa = float(parametros.get('consumo_agua_por_pessoa', 0))
+        taxa_reciclagem = float(parametros.get('taxa_reciclagem', 0))
+    except (TypeError, ValueError) as e:
+        raise ParametrosInvalidos(f"Erro ao converter parâmetros ambientais: {e}")
+
+    if numero_turistas < 0 or duracao_estadia < 0:
+        raise ParametrosInvalidos("numero_turistas e duracao_estadia devem ser >= 0")
+
+    # Fatores (copiados/compatíveis com o JS)
+    FATOR_ENERGIA_POR_M3_AGUA = 0.8  # kWh por m3
+    FATOR_LIXO_POR_PESSOA_DIA = 1.5  # kg por pessoa por dia
+    FATOR_CO2_POR_KWH_ENERGIA = 0.072  # kg CO2 por kWh
+    FATOR_CO2_POR_KG_LIXO_ATERRO = 1.2  # kg CO2 por kg de lixo em aterro
+
+    total_agua_l = numero_turistas * duracao_estadia * consumo_agua_por_pessoa
+    total_lixo_kg = numero_turistas * duracao_estadia * FATOR_LIXO_POR_PESSOA_DIA
+    lixo_nao_reciclado_kg = total_lixo_kg * (1 - (taxa_reciclagem / 100.0))
+    energia_da_agua_kwh = (total_agua_l / 1000.0) * FATOR_ENERGIA_POR_M3_AGUA
+    co2_da_energia_kg = energia_da_agua_kwh * FATOR_CO2_POR_KWH_ENERGIA
+    co2_do_lixo_kg = lixo_nao_reciclado_kg * FATOR_CO2_POR_KG_LIXO_ATERRO
+    co2_total_kg = co2_da_energia_kg + co2_do_lixo_kg
+
+    return {
+        'total_agua_l': round(total_agua_l, 2),
+        'total_lixo_kg': round(total_lixo_kg, 2),
+        'lixo_nao_reciclado_kg': round(lixo_nao_reciclado_kg, 2),
+        'energia_da_agua_kwh': round(energia_da_agua_kwh, 2),
+        'co2_da_energia_kg': round(co2_da_energia_kg, 2),
+        'co2_do_lixo_kg': round(co2_do_lixo_kg, 2),
+        'co2_total_kg': round(co2_total_kg, 2),
     }

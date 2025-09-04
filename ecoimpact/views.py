@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from simulacao.models import Cidade
 
 
 def home(request):
@@ -6,4 +7,5 @@ def home(request):
 
 
 def simulador(request):
-    return render(request, 'simulador.html')
+    cidades = list(Cidade.objects.all())
+    return render(request, 'simulador.html', {'cidades': cidades})

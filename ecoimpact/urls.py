@@ -23,4 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('simulador/', views.simulador, name='simulador'),
+    path('simulacao/', include(('simulacao.urls', 'simulacao'), namespace='simulacao')),
 ]

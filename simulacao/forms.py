@@ -10,8 +10,10 @@ class SimulacaoForm(forms.Form):
     gasto_medio = forms.DecimalField(min_value=0, decimal_places=2, max_digits=12, initial=250, label="Gasto médio por dia (R$)")
     duracao_estadia = forms.IntegerField(min_value=1, initial=3, label="Duração (dias)")
     cidades_visitadas = forms.CharField(required=False, label="Outras cidades (separar por vírgula)", help_text="Ex: Belém, Santarém")
-    cenario = forms.ChoiceField(choices=[('conservador','Conservador'),('realista','Realista'),('otimista','Otimista')], initial='realista')
     multiplicador = forms.DecimalField(required=False, min_value=0, decimal_places=4, max_digits=8, label="Multiplicador custom (opcional)", help_text="Deixe em branco para usar cenário")
+    # Campos ambientais (do simulador em JS)
+    consumo_agua_por_pessoa = forms.IntegerField(min_value=0, max_value=10000, initial=200, label="Consumo de água por pessoa (L/dia)")
+    taxa_reciclagem = forms.IntegerField(min_value=0, max_value=100, initial=30, label="Taxa de reciclagem (%)")
 
     def limpar_lista_cidades(self):
         raw = self.cleaned_data.get('cidades_visitadas') or ''
@@ -63,9 +65,11 @@ class SimulacaoForm(forms.Form):
             'gasto_medio': float(self.cleaned_data['gasto_medio']),
             'duracao_estadia': self.cleaned_data['duracao_estadia'],
             'cidades_visitadas': lista,
-            'cenario': self.cleaned_data['cenario']
         }
         mult = self.cleaned_data.get('multiplicador')
         if mult is not None:
             params['multiplicador'] = float(mult)
+        # Campos ambientais
+        params['consumo_agua_por_pessoa'] = int(self.cleaned_data.get('consumo_agua_por_pessoa', 0))
+        params['taxa_reciclagem'] = int(self.cleaned_data.get('taxa_reciclagem', 0))
         return params

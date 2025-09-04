@@ -43,7 +43,21 @@
                 <div class="card shadow-sm text-start mb-4 bg-dark text-white">
                     <div class="card-body p-4">
                         <h3 class="card-title h5 mb-4 text-primary">Parâmetros da Simulação</h3>
-                        <div class="row">
+                                                <div class="row">
+                                                                                    <div class="col-12 mb-3">
+                                                                                            <label class="form-label">Cidade principal
+                                                                                                {% if cidades %}
+                                                                                                <select name="cidade_principal" class="form-select" id="cidadePrincipal">
+                                                                                                    {% for c in cidades %}
+                                                                                                        <option value="{{ c.id }}">{{ c.nome }}</option>
+                                                                                                    {% endfor %}
+                                                                                                </select>
+                                                                                                {% else %}
+                                                                                                <input type="text" name="cidade_nome" id="cidadeNomeFallback" class="form-control" placeholder="Nenhuma cidade cadastrada - informe o nome da cidade aqui">
+                                                                                                {% endif %}
+                                                                                            </label>
+                                                                                    </div>
+                                                        <!-- Cenário removed -->
                             <div class="col-md-6">
                                 <h4 class="h6 text-secondary">Ambiental</h4>
                                 <div class="mb-3"><label for="numeroPessoas" class="form-label">Número de Participantes</label><input type="number" class="form-control" id="numeroPessoas" value="50000" oninput="atualizarCalculos()"></div>
@@ -56,7 +70,7 @@
                                 <div class="mb-3"><label for="gastoTurista" class="form-label">Gasto Diário por Turista (R$)</label><input type="number" class="form-control" id="gastoTurista" value="500" oninput="atualizarCalculos()"></div>
                                 <div class="mb-3"><label for="multiplicador" class="form-label d-flex justify-content-between"><span>Multiplicador Econômico</span><span class="badge text-bg-primary" id="valorMultiplicador">1.8</span></label><input type="range" class="form-range" id="multiplicador" min="1.0" max="3.0" value="1.8" step="0.1" oninput="atualizarCalculos()"></div>
                             </div>
-                        </div>
+                                                </div>
                     </div>
                 </div>
 
@@ -68,7 +82,13 @@
                                 <div class="chart-container">
                                     <canvas id="graficoEconomico"></canvas>
                                 </div>
-                                <p class="text-center mt-3 small text-body-secondary" id="texto-impacto-economico"></p>
+                                <p class="text-center mt-3 small text-white" id="texto-impacto-economico"></p>
+                                <p class="text-center mt-1 small text-white" id="texto-pib-cidade"></p>
+                                <!-- per-city chart removed as requested -->
+                                <div class="text-center mt-3">
+                                    <button id="btn-salvar" class="btn btn-sm btn-success">Salvar resultado</button>
+                                    <a href="{% url 'simulacao:historico' %}" class="btn btn-sm btn-secondary ms-2">Ver histórico</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -92,21 +112,47 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Hidden form to render CSRF token cookie via template tag -->
+    <form id="csrf-form" style="display:none;">{% csrf_token %}</form>
     <script>
+        // Read CSRF token from cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
         // --- Referências aos Elementos ---
         const ctxImpactos = document.getElementById('graficoImpactos').getContext('2d');
         const ctxEconomico = document.getElementById('graficoEconomico').getContext('2d');
         
-        // Inputs
-        const inputPessoas = document.getElementById('numeroPessoas'), inputDias = document.getElementById('diasEvento'), inputAgua = document.getElementById('consumoAgua'), inputReciclagem = document.getElementById('taxaReciclagem'), valorAguaSpan = document.getElementById('valorAgua'), valorReciclagemSpan = document.getElementById('valorReciclagem'), inputGastoTurista = document.getElementById('gastoTurista'), inputMultiplicador = document.getElementById('multiplicador'), valorMultiplicadorSpan = document.getElementById('valorMultiplicador'), textoImpactoEconomico = document.getElementById('texto-impacto-economico');
+    // Inputs
+    const inputPessoas = document.getElementById('numeroPessoas');
+    const inputDias = document.getElementById('diasEvento');
+    const inputAgua = document.getElementById('consumoAgua');
+    const inputReciclagem = document.getElementById('taxaReciclagem');
+    const valorAguaSpan = document.getElementById('valorAgua');
+    const valorReciclagemSpan = document.getElementById('valorReciclagem');
+    const inputGastoTurista = document.getElementById('gastoTurista');
+    const inputMultiplicador = document.getElementById('multiplicador');
+    const valorMultiplicadorSpan = document.getElementById('valorMultiplicador');
+    const textoImpactoEconomico = document.getElementById('texto-impacto-economico');
+    const cidadePrincipal = document.getElementById('cidadePrincipal');
 
-        // --- Fatores e Constantes ---
-        const FATOR_ENERGIA_POR_M3_AGUA = 0.8, FATOR_LIXO_POR_PESSOA_DIA = 1.5, FATOR_CO2_POR_KWH_ENERGIA = 0.072, FATOR_CO2_POR_KG_LIXO_ATERRO = 1.2;
-        const PIB_BELEM_2021_BRL = 33_460_000_000;
-        
-        // --- Instâncias dos Gráficos ---
+    const PIB_BELEM_2021_BRL = 33_460_000_000;
+    // --- Instâncias dos Gráficos ---
         let graficoImpactos = new Chart(ctxImpactos, { type: 'bar', data: { labels: ['Água (milhões L)', 'Lixo (ton)', 'CO² Total (ton)'], datasets: [{ label: 'Impacto', data: [0, 0, 0], backgroundColor: 'rgba(42, 157, 143, 0.6)', borderColor: '#2a9d8f', borderWidth: 2, borderRadius: 5 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { color: 'rgba(255, 255, 255, 0.7)' } }, x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: 'rgba(255, 255, 255, 0.7)' } } }, plugins: { legend: { display: false } } } });
-        let graficoEconomico = new Chart(ctxEconomico, { type: 'doughnut', data: { labels: ['Gasto Direto (Turistas)', 'Impacto Indireto (Local)'], datasets: [{ data: [0, 0], backgroundColor: ['rgba(38, 70, 83, 0.7)', 'rgba(42, 157, 143, 0.7)'], borderColor: ['#264653', '#2a9d8f'], borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: 'rgba(255, 255, 255, 0.7)', boxWidth: 12 } } } } });
+    let graficoEconomico = new Chart(ctxEconomico, { type: 'doughnut', data: { labels: ['Gasto Direto (Turistas)', 'Impacto Indireto (Local)', 'Impacto Total'], datasets: [{ data: [0, 0, 0], backgroundColor: ['rgba(38, 70, 83, 0.7)', 'rgba(42, 157, 143, 0.7)', 'rgba(231, 111, 81, 0.8)'], borderColor: ['#264653', '#2a9d8f', '#e76f51'], borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: 'rgba(255, 255, 255, 0.7)', boxWidth: 12 } } } } });
         
         function formatarDinheiro(valor) {
             if (valor >= 1_000_000_000) return `R$ ${(valor / 1_000_000_000).toFixed(2)} bi`;
@@ -114,44 +160,155 @@
             return `R$ ${valor.toFixed(2)}`;
         }
 
-        function atualizarCalculos() {
-            // Leitura dos valores
-            const numPessoas = parseFloat(inputPessoas.value) || 0, numDias = parseFloat(inputDias.value) || 0, consumoAguaPessoa = parseFloat(inputAgua.value) || 0, taxaReciclagem = parseFloat(inputReciclagem.value) || 0, gastoTurista = parseFloat(inputGastoTurista.value) || 0, multiplicador = parseFloat(inputMultiplicador.value) || 1;
-            
-            // Atualização dos badges
+        async function atualizarCalculos() {
+            // Leitura dos valores e atualização dos badges
+            const numPessoas = parseFloat(inputPessoas.value) || 0;
+            const numDias = parseFloat(inputDias.value) || 0;
+            const consumoAguaPessoa = parseFloat(inputAgua.value) || 0;
+            const taxaReciclagem = parseFloat(inputReciclagem.value) || 0;
+            const gastoTurista = parseFloat(inputGastoTurista.value) || 0;
+            const multiplicador = parseFloat(inputMultiplicador.value) || 1;
             valorAguaSpan.textContent = `${consumoAguaPessoa} L`;
             valorReciclagemSpan.textContent = `${taxaReciclagem} %`;
             valorMultiplicadorSpan.textContent = multiplicador.toFixed(1);
 
-            // Cálculos Ambientais
-            const totalAguaLitros = numPessoas * numDias * consumoAguaPessoa;
-            const totalLixoKg = numPessoas * numDias * FATOR_LIXO_POR_PESSOA_DIA;
-            const lixoNaoRecicladoKg = totalLixoKg * (1 - (taxaReciclagem / 100));
-            const energiaDaAguaKwh = (totalAguaLitros / 1000) * FATOR_ENERGIA_POR_M3_AGUA;
-            const co2DaEnergiaKg = energiaDaAguaKwh * FATOR_CO2_POR_KWH_ENERGIA;
-            const co2DoLixoKg = lixoNaoRecicladoKg * FATOR_CO2_POR_KG_LIXO_ATERRO;
-            const co2TotalKg = co2DaEnergiaKg + co2DoLixoKg;
-            
-            // Cálculos Econômicos
-            const gastoDireto = numPessoas * numDias * gastoTurista;
-            const impactoTotal = gastoDireto * multiplicador;
-            const impactoIndireto = impactoTotal - gastoDireto;
-            const percentualPIB = (impactoTotal / PIB_BELEM_2021_BRL) * 100;
+            const payload = {
+                numeroPessoas: numPessoas,
+                diasEvento: numDias,
+                consumoAgua: consumoAguaPessoa,
+                taxaReciclagem: taxaReciclagem,
+                gastoTurista: gastoTurista,
+                multiplicador: multiplicador
+            };
 
-            // Atualiza Gráfico Ambiental
-            graficoImpactos.data.datasets[0].data[0] = (totalAguaLitros / 1_000_000).toFixed(2);
-            graficoImpactos.data.datasets[0].data[1] = (totalLixoKg / 1_000).toFixed(2);
-            graficoImpactos.data.datasets[0].data[2] = (co2TotalKg / 1_000).toFixed(2);
-            graficoImpactos.update();
-            
-            // Atualiza Gráfico Econômico
-            graficoEconomico.data.datasets[0].data[0] = gastoDireto;
-            graficoEconomico.data.datasets[0].data[1] = impactoIndireto;
-            graficoEconomico.update();
-            textoImpactoEconomico.textContent = `Impacto total de ${formatarDinheiro(impactoTotal)}, equivalente a ${percentualPIB.toFixed(2)}% do PIB anual da cidade.`;
+            try {
+                // Build query string and use GET to avoid CSRF for read-only calculation
+                const params = new URLSearchParams();
+                params.set('numeroPessoas', payload.numeroPessoas);
+                params.set('diasEvento', payload.diasEvento);
+                params.set('consumoAgua', payload.consumoAgua);
+                params.set('taxaReciclagem', payload.taxaReciclagem);
+                params.set('gastoTurista', payload.gastoTurista);
+                params.set('multiplicador', payload.multiplicador);
+                // include main city (cenario removed)
+                if (cidadePrincipal && cidadePrincipal.value) params.set('cidade_principal', cidadePrincipal.value);
+
+                const url = `{% url 'simulacao:api_calcular' %}` + '?' + params.toString();
+                const resp = await fetch(url, { method: 'GET', credentials: 'same-origin' });
+                if (!resp.ok) throw new Error('Falha no cálculo');
+                const data = await resp.json();
+
+                // Atualiza gráficos com os dados retornados
+                const amb = data.ambiental;
+                const econ = data.economico;
+                if (amb) {
+                    graficoImpactos.data.datasets[0].data[0] = (amb.total_agua_l / 1_000_000).toFixed(2);
+                    graficoImpactos.data.datasets[0].data[1] = (amb.total_lixo_kg / 1_000).toFixed(2);
+                    graficoImpactos.data.datasets[0].data[2] = (amb.co2_total_kg / 1_000).toFixed(2);
+                    graficoImpactos.update();
+                }
+                if (econ) {
+                    const gastoDireto = econ.gasto_total;
+                    const impactoTotal = econ.impacto_total;
+                    const impactoIndireto = (impactoTotal - gastoDireto) || 0;
+                    graficoEconomico.data.datasets[0].data[0] = gastoDireto;
+                    graficoEconomico.data.datasets[0].data[1] = impactoIndireto;
+                    graficoEconomico.data.datasets[0].data[2] = impactoTotal;
+                    graficoEconomico.update();
+                    // Use returned city PIB if available, otherwise fallback to constant
+                    const cidadeInfo = data.cidade;
+                    const cidadePib = cidadeInfo && cidadeInfo.pib_total ? cidadeInfo.pib_total : PIB_BELEM_2021_BRL;
+                    textoImpactoEconomico.textContent = `Impacto total de R$ ${impactoTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}, equivalente a ${((impactoTotal / cidadePib)*100).toFixed(2)}% do PIB anual da cidade.`;
+                    // Show city PIB if provided
+                    const pibElem = document.getElementById('texto-pib-cidade');
+                    if (pibElem) {
+                        if (cidadeInfo && cidadeInfo.pib_total) {
+                            const formattedPib = Number(cidadeInfo.pib_total).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+                            pibElem.textContent = `PIB anual da cidade: R$ ${formattedPib}`;
+                        } else {
+                            pibElem.textContent = '';
+                        }
+                    }
+
+                    // per-city breakdown removed from UI
+                }
+            } catch (err) {
+                console.error('Erro ao calcular:', err);
+            }
         }
 
-        window.onload = atualizarCalculos;
+        // Debounce helper
+        function debounce(fn, wait) {
+            let t = null;
+            return function(...args) {
+                clearTimeout(t);
+                t = setTimeout(() => fn.apply(this, args), wait);
+            };
+        }
+
+        const debouncedAtualizar = debounce(atualizarCalculos, 300);
+
+        // Recalc live when inputs change
+    const liveInputs = [inputPessoas, inputDias, inputAgua, inputReciclagem, inputGastoTurista, inputMultiplicador, cidadePrincipal];
+        liveInputs.forEach(el => {
+            if (!el) return;
+            const ev = (el.tagName === 'SELECT' || el.type === 'text' || el.type === 'number') ? 'change' : 'input';
+            el.addEventListener(ev, () => {
+                valorAguaSpan.textContent = `${inputAgua.value} L`;
+                valorReciclagemSpan.textContent = `${inputReciclagem.value} %`;
+                valorMultiplicadorSpan.textContent = parseFloat(inputMultiplicador.value).toFixed(1);
+                debouncedAtualizar();
+            });
+            // Save button handler
+            const btnSalvar = document.getElementById('btn-salvar');
+            if (btnSalvar) {
+                let isSaving = false;
+                btnSalvar.addEventListener('click', async () => {
+                    if (isSaving) return; // prevent double-clicks
+                    isSaving = true;
+                    btnSalvar.disabled = true;
+                    const originalText = btnSalvar.textContent;
+                    btnSalvar.textContent = 'Salvando...';
+                    // gather current params (same mapping used for calcular)
+                    const params = {
+                        numero_turistas: parseFloat(inputPessoas.value) || 0,
+                        duracao_estadia: parseFloat(inputDias.value) || 0,
+                        consumo_agua_por_pessoa: parseFloat(inputAgua.value) || 0,
+                        taxa_reciclagem: parseFloat(inputReciclagem.value) || 0,
+                        gasto_medio: parseFloat(inputGastoTurista.value) || 0,
+                        multiplicador: parseFloat(inputMultiplicador.value) || undefined,
+                    };
+                    if (cidadePrincipal && cidadePrincipal.value) {
+                        params.cidade_id = cidadePrincipal.value;
+                        const nome = cidadePrincipal.options[cidadePrincipal.selectedIndex].text;
+                        params.cidades_visitadas = [nome];
+                    }
+                    try {
+                        const resp = await fetch(`{% url 'simulacao:salvar_resultado' %}`, {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+                            body: JSON.stringify(params)
+                        });
+                        if (!resp.ok) throw new Error('Falha ao salvar');
+                        const j = await resp.json();
+                        if (j.simulacao_id) {
+                            alert('Simulação salva (id: ' + j.simulacao_id + (j.duplicate ? ' — já existente recente' : '') + ')');
+                        } else {
+                            alert('Resposta inesperada do servidor.');
+                        }
+                    } catch (e) {
+                        console.error('Erro ao salvar:', e);
+                        alert('Erro ao salvar: ' + e.message);
+                    }
+                    finally {
+                        isSaving = false;
+                        btnSalvar.disabled = false;
+                        btnSalvar.textContent = originalText;
+                    }
+                });
+            }
+        });
         console.log(document.getElementById('graficoEconomico'));
 console.log(document.getElementById('graficoImpactos'));
     </script>

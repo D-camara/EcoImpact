@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block title %}Histórico - EcoImpact{% endblock %}
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <link rel="stylesheet" href="{% static 'cover.css' %}">
+{% endblock %}
+{% block content %}
+<div class="d-flex w-100 h-100 mx-auto flex-column bg-dark text-white">
+  <header class="mb-auto">
+    <nav class="navbar navbar-dark bg-dark" aria-label="Dark offcanvas navbar">
+      <div class="container-fluid">
+        <div class="d-flex align-items-center">
+          <a href="{% url 'home' %}" class="navbar-brand fs-4 fw-bold">EcoImpact</a>
+        </div>
+        <div>
+          <a href="{% url 'simulacao:simular' %}" class="btn btn-sm btn-secondary">Voltar ao simulador</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main role="main" class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="m-0">Histórico de Simulações</h2>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="card shadow-sm text-start bg-dark text-white p-3 mb-3">
+          <label for="selectSimulacoes" class="form-label">Escolha uma simulação</label>
+          <select id="selectSimulacoes" class="form-select">
+            <option value="">-- selecione --</option>
+            {% for s in simulacoes %}
+              <option value="{{ s.id }}">#{{ s.id }} — {{ s.cidade.nome }} — {{ s.data_criacao|date:"Y-m-d H:i" }}</option>
+            {% empty %}
+              <option value="">Nenhuma simulação</option>
+            {% endfor %}
+          </select>
+
+          <hr class="bg-secondary" />
+          <div id="detalhes" style="display:none;">
+            <h6>Parâmetros</h6>
+            <ul id="lista-parametros"></ul>
+            <h6>Resumo</h6>
+            <p id="resumo-impacto"></p>
+            <p id="texto-pib-cidade" class="small text-muted"></p>
+            <a id="ver-json" class="btn btn-sm btn-outline-primary" target="_blank">Ver JSON</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <div class="card shadow-sm text-start bg-dark text-white p-3 mb-3">
+          <h5>Impacto Econômico</h5>
+          <div style="height:260px;"><canvas id="histGraficoEconomico"></canvas></div>
+          <hr class="bg-secondary" />
+          <h5>Impacto Ambiental Agregado</h5>
+          <div style="height:260px;"><canvas id="histGraficoImpactos"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="mt-auto text-white-50 text-center py-3">
+    <p>Projeto Ecolmpact, desenvolvido para a COP-30 em Belém.</p>
+  </footer>
+</div>
+
+<!-- CSRF token form for safety if needed later -->
+<form id="csrf-form" style="display:none;">{% csrf_token %}</form>
+
+<script>
+  // Helper to read cookie
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  const csrftoken = getCookie('csrftoken');
+
+  const select = document.getElementById('selectSimulacoes');
+  const detalhes = document.getElementById('detalhes');
+  const listaParametros = document.getElementById('lista-parametros');
+  const resumoImpacto = document.getElementById('resumo-impacto');
+  const verJson = document.getElementById('ver-json');
+  const textoPibCidade = document.getElementById('texto-pib-cidade');
+
+  const ctxEco = document.getElementById('histGraficoEconomico').getContext('2d');
+  const ctxAmb = document.getElementById('histGraficoImpactos').getContext('2d');
+
+  let grafEco = new Chart(ctxEco, { type: 'doughnut', data: { labels: ['Gasto Direto', 'Impacto Indireto', 'Impacto Total'], datasets: [{ data: [0,0,0], backgroundColor: ['#264653','#2a9d8f','#e76f51'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
+  let grafAmb = new Chart(ctxAmb, {
+    type: 'bar',
+    data: {
+      labels: ['Água (milhões L)', 'Lixo (ton)', 'CO² Total (ton)'],
+      datasets: [{
+        data: [0,0,0],
+        backgroundColor: ['rgba(42,157,143,0.7)','rgba(42,157,143,0.7)','rgba(42,157,143,0.7)'],
+        borderWidth: 1,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { ticks: { color: 'rgba(255,255,255,0.9)' } },
+        x: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: 'rgba(255,255,255,0.9)' } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  async function carregarSimulacao(id) {
+    if (!id) {
+      detalhes.style.display = 'none';
+      return;
+    }
+    const url = `{% url 'simulacao:api_resultado' 0 %}`.replace('/0/', `/${id}/`);
+    try {
+      const resp = await fetch(url, { method: 'GET', credentials: 'same-origin' });
+      if (!resp.ok) throw new Error('Falha ao buscar resultado');
+      const data = await resp.json();
+      // Populate parameters list
+      listaParametros.innerHTML = '';
+      const params = data.parametros || {};
+      for (const [k, v] of Object.entries(params)) {
+        const li = document.createElement('li');
+        li.textContent = `${k}: ${Array.isArray(v) ? v.join(', ') : v}`;
+        listaParametros.appendChild(li);
+      }
+
+      // Update economic chart and summary
+      const resultado = data.resultado || {};
+      const econ = resultado.economico || resultado || {};
+      const gastoDireto = econ.gasto_total || 0;
+      const impactoTotal = econ.impacto_total || 0;
+      const impactoIndireto = Math.max(0, impactoTotal - gastoDireto);
+      grafEco.data.datasets[0].data = [gastoDireto, impactoIndireto, impactoTotal];
+      grafEco.update();
+
+      // Environmental
+  const amb = resultado.ambiental || {};
+  // Ensure numeric values and convert units
+  const aguaMilhoes = Number(amb.total_agua_l || 0) / 1_000_000;
+  const lixoTon = Number(amb.total_lixo_kg || 0) / 1000;
+  const co2Ton = Number(amb.co2_total_kg || 0) / 1000;
+  grafAmb.data.datasets[0].data = [aguaMilhoes, lixoTon, co2Ton];
+      grafAmb.update();
+
+      // Summary text
+      resumoImpacto.textContent = `Impacto total: R$ ${impactoTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+
+      // PIB info
+      const cidadeInfo = data.cidade_info || null;
+      if (cidadeInfo && cidadeInfo.pib_total) {
+        textoPibCidade.textContent = `PIB anual da cidade: R$ ${Number(cidadeInfo.pib_total).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})} — equivalente a ${((impactoTotal / cidadeInfo.pib_total) * 100).toFixed(2)}% do PIB`;
+      } else {
+        textoPibCidade.textContent = '';
+      }
+
+      // Set detail view visible and JSON link
+      detalhes.style.display = 'block';
+      verJson.href = `{% url 'simulacao:api_resultado' 0 %}`.replace('/0/', `/${id}/`);
+      verJson.textContent = 'Ver JSON';
+    } catch (e) {
+      console.error(e);
+      detalhes.style.display = 'none';
+      alert('Erro ao carregar simulação: ' + e.message);
+    }
+  }
+
+  select.addEventListener('change', (e) => {
+    carregarSimulacao(e.target.value);
+  });
+
+  // Auto-select first if present
+  if (select.options.length > 1 && select.options[1].value) {
+    select.selectedIndex = 1;
+    carregarSimulacao(select.options[1].value);
+  }
+</script>
+
+{% endblock %}
