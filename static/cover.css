@@ -1,11 +1,21 @@
-/* Descrição maior na hero-section */
+
+
 .hero-desc {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 400;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 4rem;
 }
+
 body {
+  font-family: "Rubik", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 495;
+  font-style: normal;
   padding-top: 0;
-  padding-bottom: 3rem;
+  padding-bottom: 5rem;
   color: var(--bs-body-color);
   background: var(--bs-body-bg);
 }
@@ -30,12 +40,10 @@ body {
   }
 }
 
-/* Ajuste para as imagens ficarem responsivas e centralizadas */
 .featurette-image {
   width: 100%;
-  max-width: 500px;
-  height: auto;
-  aspect-ratio: 1/1;
+  max-width: 900px;
+  height: 500px;
   object-fit: cover;
   background: #e9ecef;
   display: block;
@@ -50,25 +58,33 @@ body {
     aspect-ratio: 1/1;
   }
 }
-/* Remove o espaçamento inferior do header para aproximar o hero-section */
+
 header.mb-auto {
   margin-bottom: 1rem !important;
 }
-/* Hero section full width com imagem de fundo */
-.hero-section {
-  width: 100vw;
-  min-height: 90vh;
-  background: linear-gradient(rgba(44,44,44,0.5), rgba(44,44,44,0.5)), url('imagens/belem1.jpg') center center/cover no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: calc(-50vw + 50%);
-  margin-right: calc(-50vw + 50%);
-  border-radius: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  padding: 2rem 1rem;
-  box-sizing: border-box;
-  text-align: center;
+
+.carousel {
+    height: 80vh;
+}
+
+.carousel-inner {
+    height: 100%;
+}
+
+.carousel-item {
+    height: 100%;
+}
+
+.carousel-item img {
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.4);
+}
+
+.carousel-caption {
+    top: 50%;
+    transform: translateY(-50%);
+    bottom: auto;
 }
 
 @media (max-width: 767.98px) {
@@ -148,31 +164,19 @@ header.mb-auto {
 .bd-mode-toggle .dropdown-menu .active .bi {
   display: block !important;
 }
-/*
- * Globals
- */
 
-
-/* Custom default button */
 .btn-light,
 .btn-light:hover,
 .btn-light:focus {
   color: #333;
-  text-shadow: none; /* Prevent inheritance from `body` */
+  text-shadow: none;
 }
-
-
-/*
- * Base structure
- */
 
 body {
   text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
   box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
 }
 
-
-/* Container responsivo para marketing */
 .container.marketing {
   max-width: 900px;
   margin: 0 auto;
@@ -184,11 +188,6 @@ body {
 body {
   overflow-x: hidden;
 }
-
-
-/*
- * Header
- */
 
 .nav-masthead .nav-link {
   color: rgba(255, 255, 255, .5);
@@ -209,4 +208,140 @@ body {
   border-bottom-color: #fff;
 }
 
-/*# sourceMappingURL=cover.css.map */
+.login-form-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
+
+#comment-form {
+  width: 100%;
+  max-width: 500px;
+}
+
+#comment-form .form-control {
+  background-color: #646464 !important;
+  color: #fff !important;
+  border-color: #838383 !important;
+  box-shadow: none !important;
+}
+
+#comment-form .form-control:focus {
+  background-color: #646464 !important;
+  color: #fff !important;
+  border-color: #838383 !important;
+  box-shadow: none !important;
+}
+
+#comment-form .form-floating label {
+  color: #ffffff;
+}
+
+#comment-form .form-floating .form-control:focus ~ label,
+#comment-form .form-floating .form-control:not(:placeholder-shown) ~ label {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+.form-floating .form-control:disabled,
+.form-floating .form-select:disabled {
+  background-color: #f8f9fa;
+  opacity: 1;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.form-floating label {
+  color: #666;
+}
+
+.row.featurette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.row.featurette .col-md-5 {
+  order: 1;
+  width: 100%;
+}
+
+.row.featurette .col-md-7 {
+  order: 2;
+  text-align: center;
+  margin-top: -5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container.marketing .row.featurette .col-md-7 p.lead {
+  max-width: 900px !important;
+  margin: 0 !important;
+  line-height: 1.6 !important;
+  text-align: justify !important;
+  hyphens: auto !important;
+  width: 900px !important;
+}
+
+/* Regra adicional para garantir alinhamento justificado */
+.featurette .lead {
+  text-align: justify !important;
+}
+
+/* Centralizando apenas os títulos e adicionando espaçamento */
+.featurette .featurette-heading {
+  text-align: center !important;
+  margin-bottom: 2rem !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .featurette-image {
+    scale: .8;
+    opacity: 0.5;
+    animation: fade-in linear forwards;
+    animation-timeline: view();
+    animation-range: entry;
+  }
+
+  @keyframes fade-in {
+    from { scale: 0.8; opacity: 0.5; }
+    to { scale: 1; opacity: 1; }
+  }
+}
+
+.btn-link-style {
+    background: none;
+    border: none;
+    padding: 0;
+    font-weight: bold;
+    color: #bebebe;
+    text-decoration: underline;
+    transition: color 0.2s ease-in-out;
+}
+
+.btn-link-style:hover {
+    color: #929292;
+    text-decoration: underline;
+}
+
+#infoModal .modal-body {
+    text-align: center;
+}
+
+#infoModal .modal-header,
+#infoModal .modal-footer {
+    justify-content: center;
+    border: none;
+}
+
+#infoModal .modal-header .modal-title {
+    margin-left: 2rem;
+    width: 100%;
+    text-align: center;
+    font-size: 2.2rem
+}
+.list-unstyled {
+    font-size: 1.5rem;
+}

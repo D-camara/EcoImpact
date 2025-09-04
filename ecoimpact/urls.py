@@ -22,6 +22,7 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
-    path('simulador/', views.simulador, name='simulador'),
-    path('simulacao/', include(('simulacao.urls', 'simulacao'), namespace='simulacao')),
+    path('contato/', views.contato, name='contato'),
+    path('buscar/', views.buscar, name='buscar'),
+    path('simulacao/', include('simulacao.urls')),
 ]
