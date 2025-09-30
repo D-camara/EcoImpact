@@ -30,86 +30,76 @@ class SimulacaoForm(forms.Form):
     """Formulário para simulação de impacto econômico da COP 30"""
     
     # Campo para seleção de cidades do banco de dados
-    cidades_selecionadas = forms.ModelMultipleChoiceField(
+    cidade_selecionada = forms.ModelChoiceField(
         queryset=Cidade.objects.all().order_by('nome'),
-        widget=CityCheckboxSelectMultiple(attrs={
-            'class': 'form-check-input'
+        widget=forms.Select(attrs={
+            'class': 'form-select h-12 text-base border-2 border-success/30',
         }),
-        label="Cidades para Análise",
-        help_text="Selecione as cidades que receberão impacto turístico",
+        label="Cidade Sede do Evento",
+        help_text="Escolha a cidade que sediará o evento COP-30",
         required=True
     )
-    
-    numero_turistas = forms.IntegerField(
-        min_value=1,
+
+    numero_visitantes = forms.IntegerField(
         initial=50000,
-        label="Número de Turistas",
-        help_text="Quantidade estimada de turistas",
+        label="Número de Visitantes",
+        help_text="Quantidade estimada de visitantes",
         widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ex: 50000'
+            'class': 'form-control h-11',
+            'placeholder': '50000'
         })
     )
-    
-    gasto_medio = forms.FloatField(
-        min_value=0.01,
-        initial=200.00,
+
+    gasto_medio_diario = forms.FloatField(
+        initial=250,
         label="Gasto Médio Diário (R$)",
-        help_text="Valor em reais que cada turista gasta por dia",
+        help_text="Valor médio gasto por pessoa/dia",
         widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ex: 200.00',
+            'class': 'form-control h-11',
+            'placeholder': '250',
             'step': '0.01'
         })
     )
-    
-    duracao_estadia = forms.IntegerField(
-        min_value=1,
-        max_value=365,
-        initial=7,
-        label="Duração da Estadia (dias)",
-        help_text="Quantos dias cada turista permanece na região",
+
+    duracao_evento = forms.IntegerField(
+        initial=10,
+        label="Duração do Evento (dias)",
+        help_text="Número de dias do evento",
         widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ex: 7'
+            'class': 'form-control h-11',
+            'placeholder': '10'
         })
     )
-    
+
     multiplicador = forms.FloatField(
-        min_value=0.1,
-        max_value=5.0,
         initial=2.5,
-        required=True,
         label="Multiplicador Econômico",
-        help_text="Fator que multiplica o impacto direto dos gastos (recomendado: 1.5 a 3.0)",
+        help_text="Fator multiplicador do impacto econômico (ex: 2.5)",
         widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ex: 2.5',
-            'step': '0.1'
+            'class': 'form-control h-11',
+            'placeholder': '2.5',
+            'step': '0.01'
         })
     )
-    
-    # Novos parâmetros ambientais
-    consumo_agua_pessoa = forms.FloatField(
-        min_value=1.0,
-        initial=150.0,
-        label="Consumo de Água por Pessoa (L/dia)",
-        help_text="Quantidade média de água consumida por turista por dia",
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'step': '1.0',
-            'placeholder': 'Ex: 150.0'
-        })
-    )
-    
-    producao_lixo_pessoa = forms.FloatField(
-        min_value=0.1,
+
+    lixo_gerado_por_pessoa = forms.FloatField(
         initial=2.5,
-        label="Produção de Lixo por Pessoa (kg/dia)",
-        help_text="Quantidade média de resíduos gerados por turista por dia",
+        label="Lixo Gerado por Pessoa (kg/dia)",
+        help_text="Quantidade média de lixo gerado por pessoa por dia",
         widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'step': '0.1',
-            'placeholder': 'Ex: 2.5'
+            'class': 'form-control h-11',
+            'placeholder': '2.5',
+            'step': '0.01'
+        })
+    )
+
+    agua_consumida_por_pessoa = forms.FloatField(
+        initial=150.0,
+        label="Água Consumida por Pessoa (litros/dia)",
+        help_text="Quantidade média de água consumida por pessoa por dia",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control h-11',
+            'placeholder': '150',
+            'step': '0.01'
         })
     )

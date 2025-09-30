@@ -58,7 +58,7 @@ def simulacao_view(request: HttpRequest) -> HttpResponse:
         form = SimulacaoForm()
     
     # Mostrar formulário (GET ou POST com erro)
-    return render(request, 'simulador.html', {
+    return render(request, 'simulacao/form.html', {
         'form': form,
         'resultado': resultado
     })
