@@ -3,6 +3,18 @@
 from django.db import migrations
 
 
+def ensure_impacto_table(apps, schema_editor):
+    impacto_model = apps.get_model('simulacao', 'ImpactoEconomico')
+    table_name = impacto_model._meta.db_table
+
+    connection = schema_editor.connection
+    with connection.cursor() as cursor:
+        existing_tables = connection.introspection.table_names(cursor)
+
+    if table_name not in existing_tables:
+        schema_editor.create_model(impacto_model)
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,6 +22,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(ensure_impacto_table, migrations.RunPython.noop),
         migrations.RemoveField(
             model_name='impactoeconomico',
             name='cidades_visitadas',

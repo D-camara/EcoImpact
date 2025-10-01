@@ -5,6 +5,8 @@ Implemente os campos que desejarem manter. Estrutura básica pronta.
 
 from __future__ import annotations
 
+from decimal import Decimal
+
 from django.db import models
 
 
@@ -60,18 +62,29 @@ class ImpactoEconomico(models.Model):
     # Métodos de cálculo
     @property
     def impacto_total(self):
-        if self.numero_turistas is not None and self.gasto_medio is not None and self.duracao_estadia is not None:
-            return self.numero_turistas * float(self.gasto_medio) * self.duracao_estadia
-        return 0
+        if self.numero_turistas is None or self.gasto_medio is None or self.duracao_estadia is None:
+            return Decimal("0")
+        return self.calcular_impacto_total()
 
-    def calcular_impacto_por_cidade(self):
-        """Divide o total pelas cidades visitadas"""
-        if self.cidades_visitadas > 0:
-            return self.calcular_impacto_total() / self.cidades_visitadas
-        return 0
+    def calcular_impacto_total(self) -> Decimal:
+        """Retorna o impacto econômico total da simulação."""
 
-    def gasto_total_turistas(self):
-        """Total gasto por todos os turistas"""
+        return (
+            Decimal(self.numero_turistas)
+            * self.gasto_medio
+            * Decimal(self.duracao_estadia)
+        )
+
+    def calcular_impacto_por_cidade(self, total_cidades: int = 1) -> Decimal:
+        """Divide o impacto total pela quantidade de cidades consideradas."""
+
+        if total_cidades <= 0:
+            return self.calcular_impacto_total()
+        return self.calcular_impacto_total() / Decimal(total_cidades)
+
+    def gasto_total_turistas(self) -> Decimal:
+        """Total gasto por todos os turistas."""
+
         return self.calcular_impacto_total()
 
     def __str__(self):
