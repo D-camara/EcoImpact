@@ -22,30 +22,47 @@ def simulacao_view(request: HttpRequest) -> HttpResponse:
                 print("🔄 Processando simulação...")
                 
                 # Preparar parâmetros para o cálculo
-                cidades_selecionadas = form.cleaned_data['cidades_selecionadas']
-                print(f"🏙️ Cidades selecionadas: {[c.nome for c in cidades_selecionadas]}")
-                
+                cidade_selecionada = form.cleaned_data['cidade_selecionada']
+                print(f"🏙️ Cidade selecionada: {cidade_selecionada.nome}")
+
                 parametros = {
-                    'numero_turistas': form.cleaned_data['numero_turistas'],
-                    'gasto_medio': form.cleaned_data['gasto_medio'],
-                    'duracao_estadia': form.cleaned_data['duracao_estadia'],
-                    'cidades_selecionadas': [cidade.nome for cidade in cidades_selecionadas],
+                    'numero_turistas': form.cleaned_data['numero_visitantes'],
+                    'gasto_medio': form.cleaned_data['gasto_medio_diario'],
+                    'duracao_estadia': form.cleaned_data['duracao_evento'],
+                    'cidades_selecionadas': [cidade_selecionada.nome],
                     'multiplicador': form.cleaned_data['multiplicador'],
-                    'consumo_agua_pessoa': form.cleaned_data['consumo_agua_pessoa'],
-                    'producao_lixo_pessoa': form.cleaned_data['producao_lixo_pessoa'],
+                    'consumo_agua_pessoa': form.cleaned_data['agua_consumida_por_pessoa'],
+                    'producao_lixo_pessoa': form.cleaned_data['lixo_gerado_por_pessoa'],
                 }
-                
+
                 print(f"📊 Parâmetros: {parametros}")
                 
                 # Calcular impacto
                 resultado = calcular_impacto_economico(parametros)
                 print(f"✅ Resultado calculado: {resultado is not None}")
-                
+
+                # Salvar simulação no banco
+                from .models import Simulacao, Cidade, Relatorio
+                cidade_obj = Cidade.objects.get(nome=cidade_selecionada.nome)
+                simulacao = Simulacao(
+                    cidade=cidade_obj,
+                    parametros=parametros
+                )
+                simulacao.save()
+
+                # Salvar resultado no banco
+                relatorio = Relatorio(
+                    simulacao=simulacao,
+                    resultado=resultado
+                )
+                relatorio.save()
+
                 # Se há resultado, mostrar template de resultado
                 if resultado:
                     print("🎯 Redirecionando para template de resultado...")
                     return render(request, 'simulacao/resultado_simples.html', {
-                        'resultado': resultado
+                        'resultado': resultado,
+                        'parametros': parametros
                     })
                 else:
                     print("❌ Resultado vazio")

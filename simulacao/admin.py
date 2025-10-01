@@ -33,19 +33,16 @@ class ImpactoEconomicoAdmin(admin.ModelAdmin):
         "numero_turistas",
         "gasto_medio",
         "duracao_estadia",
-        "cidades_visitadas",
-        "impacto_total",
-        "impacto_por_cidade",
-        "gasto_total_turistas",
+    # "cidades_visitadas",  # Removido pois não existe mais
+        "impacto_total_display",
+        "impacto_por_cidade_display",
+        "gasto_total_turistas_display",
         "data_criacao",
     )
-    list_filter = ("data_criacao", "cidades_visitadas")
+    list_filter = ("data_criacao",)
     search_fields = ("nome_simulacao",)
     readonly_fields = (
         "data_criacao",
-        "impacto_total",
-        "impacto_por_cidade",
-        "gasto_total_turistas",
     )
     list_display_links = ("nome_simulacao", "cidade")
 
@@ -56,14 +53,16 @@ class ImpactoEconomicoAdmin(admin.ModelAdmin):
     cidade.short_description = "Cidade"
 
     # Campos calculados
-    def impacto_total(self, obj):
-        return obj.calcular_impacto_total()
-    impacto_total.short_description = "Impacto Total"
 
-    def impacto_por_cidade(self, obj):
+    def impacto_total_display(self, obj):
+        return obj.impacto_total
+    impacto_total_display.short_description = "Impacto Total"
+
+    def impacto_por_cidade_display(self, obj):
         return obj.calcular_impacto_por_cidade()
-    impacto_por_cidade.short_description = "Impacto por Cidade"
+    impacto_por_cidade_display.short_description = "Impacto por Cidade"
 
-    def gasto_total_turistas(self, obj):
+    def gasto_total_turistas_display(self, obj):
         return obj.gasto_total_turistas()
-    gasto_total_turistas.short_description = "Gasto Total Turistas"
+    gasto_total_turistas_display.short_description = "Gasto Total Turistas"
+    gasto_total_turistas_display.short_description = "Gasto Total Turistas"

@@ -56,15 +56,13 @@ class ImpactoEconomico(models.Model):
         help_text="Quanto cada turista gasta por dia? (R$)"
     )
     duracao_estadia = models.PositiveIntegerField(help_text="Quantos dias eles ficam?")
-    cidades_visitadas = models.PositiveIntegerField(
-        default=1,
-        help_text="Quantas cidades eles visitam?"
-    )
 
     # Métodos de cálculo
-    def calcular_impacto_total(self):
-        """turistas × gasto_médio × dias"""
-        return self.numero_turistas * float(self.gasto_medio) * self.duracao_estadia
+    @property
+    def impacto_total(self):
+        if self.numero_turistas is not None and self.gasto_medio is not None and self.duracao_estadia is not None:
+            return self.numero_turistas * float(self.gasto_medio) * self.duracao_estadia
+        return 0
 
     def calcular_impacto_por_cidade(self):
         """Divide o total pelas cidades visitadas"""
