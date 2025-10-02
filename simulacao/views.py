@@ -44,6 +44,45 @@ def simulacao_view(request: HttpRequest) -> HttpResponse:
                 # Salvar simulação no banco
                 from .models import Simulacao, Cidade, Relatorio
                 cidade_obj = Cidade.objects.get(nome=cidade_selecionada.nome)
+
+                # Dados comparativos para gráficos (turistas x habitantes)
+                populacao_cidade = cidade_obj.populacao
+                duracao_estadia = parametros['duracao_estadia']
+                consumo_agua_pessoa = parametros['consumo_agua_pessoa']
+                lixo_pessoa = parametros['producao_lixo_pessoa']
+                gasto_medio = parametros['gasto_medio']
+                numero_turistas = parametros['numero_turistas']
+
+                # Impacto econômico estimado para residentes utilizando PIB per capita (conversão diária)
+                try:
+                    pib_per_capita = float(cidade_obj.pib_per_capita)
+                except (TypeError, ValueError):
+                    pib_per_capita = 0.0
+
+                impacto_residentes = round(
+                    (pib_per_capita / 365.0) * duracao_estadia * populacao_cidade,
+                    2
+                )
+
+                consumo_agua_residentes = round(
+                    populacao_cidade * consumo_agua_pessoa * duracao_estadia,
+                    2
+                )
+
+                lixo_residentes = round(
+                    populacao_cidade * lixo_pessoa * duracao_estadia,
+                    2
+                )
+
+                resultado.update({
+                    'populacao_cidade': populacao_cidade,
+                    'impacto_residentes': impacto_residentes,
+                    'consumo_agua_residentes': consumo_agua_residentes,
+                    'lixo_residentes': lixo_residentes,
+                    'gasto_medio_turista': gasto_medio,
+                    'numero_turistas_evento': numero_turistas,
+                })
+
                 simulacao = Simulacao(
                     cidade=cidade_obj,
                     parametros=parametros
