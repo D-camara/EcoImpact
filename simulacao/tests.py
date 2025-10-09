@@ -10,7 +10,13 @@ import json
 
 class TestCalculoImpacto(TestCase):
     def setUp(self):
-        self.cidade = Cidade.objects.create(nome="Belém", populacao=1000000, pib_per_capita=50000)
+        self.cidade, _ = Cidade.objects.get_or_create(
+            nome="Belém",
+            defaults={
+                'populacao': 1000000,
+                'pib_per_capita': 50000,
+            }
+        )
         self.base = {
             'numero_turistas': 100,
             'gasto_medio': 250,
@@ -70,10 +76,16 @@ class TestCalculoImpacto(TestCase):
 
 class TestAPIs(TestCase):
     def setUp(self):
-        self.cidade = Cidade.objects.create(nome="Santarém", populacao=300000, pib_per_capita=40000)
+        self.cidade, _ = Cidade.objects.get_or_create(
+            nome="Santarém",
+            defaults={
+                'populacao': 300000,
+                'pib_per_capita': 40000,
+            }
+        )
 
     def test_api_simular_cria_simulacao_e_relatorio(self):
-        url = reverse('api_simular')
+        url = reverse('simulacao:api_simular')
         payload = {
             "cidade_id": self.cidade.id,
             "numero_turistas": 50,
@@ -94,13 +106,13 @@ class TestAPIs(TestCase):
         # Primeiro cria
         sim = Simulacao.objects.create(cidade=self.cidade, parametros={"numero_turistas":10,"gasto_medio":100,"duracao_estadia":2,"cidades_visitadas":1})
         Relatorio.objects.create(simulacao=sim, resultado={"impacto_total": 1000})
-        url = reverse('api_resultado', args=[sim.id])
+        url = reverse('simulacao:api_resultado', args=[sim.id])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()['simulacao_id'], sim.id)
 
     def test_api_simular_cidade_inexistente(self):
-        url = reverse('api_simular')
+        url = reverse('simulacao:api_simular')
         payload = {
             "cidade_id": 9999,
             "numero_turistas": 50,
@@ -113,7 +125,7 @@ class TestAPIs(TestCase):
         self.assertIn('erro', resp.json())
 
     def test_api_simular_parametros_invalidos(self):
-        url = reverse('api_simular')
+        url = reverse('simulacao:api_simular')
         payload = {
             "cidade_id": self.cidade.id,
             "numero_turistas": 0,

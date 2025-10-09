@@ -18,7 +18,7 @@ def ensure_impacto_table(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('simulacao', '0002_alter_cidade_pib_per_capita_alter_cidade_populacao_and_more'),
+        ('simulacao', '0003_cidade_estado'),
     ]
 
     operations = [
