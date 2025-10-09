@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Resultado da Simulação - COP-30 EcoImpact{% endblock %}
+
+{% block extra_head %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .progress-bar[data-percent] {
+            width: var(--percent, 0%);
+            transition: width 0.6s ease;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <div class="text-center mb-4">
+            <h2 class="text-dark mb-3">Resultado da Simulação COP-30</h2>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Dados Enviados</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <strong>Cidade Selecionada:</strong><br>
+                        {{ parametros.cidades_selecionadas.0 }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Número de Turistas:</strong><br>
+                        {{ parametros.numero_turistas }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Gasto Médio Diário (R$):</strong><br>
+                        {{ parametros.gasto_medio }}
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-4">
+                        <strong>Duração da Estadia (dias):</strong><br>
+                        {{ parametros.duracao_estadia }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Multiplicador Econômico:</strong><br>
+                        {{ parametros.multiplicador }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Consumo de Água por Pessoa (L/dia):</strong><br>
+                        {{ parametros.consumo_agua_pessoa }}
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-4">
+                        <strong>Lixo Gerado por Pessoa (kg/dia):</strong><br>
+                        {{ parametros.producao_lixo_pessoa }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Impacto Econômico</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">R$ {{ resultado.impacto_total|floatformat:2 }}</div>
+                        {% with max_economico=10000000 %}
+                            {% widthratio resultado.impacto_total max_economico 100 as impacto_percent %}
+                            <div class="progress" style="height: 32px;">
+                                <div class="progress-bar bg-success" role="progressbar" data-percent="{{ impacto_percent }}" style="--percent: {{ impacto_percent }}%;" aria-valuenow="{{ resultado.impacto_total|floatformat:0 }}" aria-valuemin="0" aria-valuemax="{{ max_economico }}">
+                                    {{ resultado.impacto_total|floatformat:0 }}
+                                </div>
+                            </div>
+                        {% endwith %}
+                        <small class="text-muted">(em milhões)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Consumo de Água</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">{{ resultado.consumo_agua_total|floatformat:2 }} L</div>
+                        {% with max_agua=1000000 %}
+                            {% widthratio resultado.consumo_agua_total max_agua 100 as agua_percent %}
+                            <div class="progress" style="height: 32px;">
+                                <div class="progress-bar bg-info" role="progressbar" data-percent="{{ agua_percent }}" style="--percent: {{ agua_percent }}%;" aria-valuenow="{{ resultado.consumo_agua_total|floatformat:0 }}" aria-valuemin="0" aria-valuemax="{{ max_agua }}">
+                                    {{ resultado.consumo_agua_total|floatformat:0 }}
+                                </div>
+                            </div>
+                        {% endwith %}
+                        <small class="text-muted">(em milhares de litros)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">Produção de Lixo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">{{ resultado.producao_lixo_total|floatformat:2 }} kg</div>
+                        {% with max_lixo=100000 %}
+                            {% widthratio resultado.producao_lixo_total max_lixo 100 as lixo_percent %}
+                            <div class="progress" style="height: 32px;">
+                                <div class="progress-bar bg-warning" role="progressbar" data-percent="{{ lixo_percent }}" style="--percent: {{ lixo_percent }}%;" aria-valuenow="{{ resultado.producao_lixo_total|floatformat:0 }}" aria-valuemin="0" aria-valuemax="{{ max_lixo }}">
+                                    {{ resultado.producao_lixo_total|floatformat:0 }}
+                                </div>
+                            </div>
+                        {% endwith %}
+                        <small class="text-muted">(em milhares de kg)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <span>Impacto Econômico</span>
+                        <span class="badge bg-secondary">Turistas × Habitantes</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="economicPie" height="260"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <span>Consumo de Água</span>
+                        <span class="badge bg-light text-primary">Turistas × Habitantes</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="waterPie" height="260"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                        <span>Produção de Resíduos</span>
+                        <span class="badge bg-dark text-warning">Turistas × Habitantes</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="wastePie" height="260"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Resultados Detalhados</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for key, value in resultado.items %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><strong>{{ key|capfirst }}</strong></span>
+                            <span>{{ value }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="{% url 'simulacao:simular' %}" class="btn btn-primary me-2">Nova Simulação</a>
+            <button onclick="window.print()" class="btn btn-outline-secondary">Imprimir Relatório</button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    {{ resultado|json_script:"resultado-data" }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scriptEl = document.getElementById('resultado-data');
+            if (!scriptEl || typeof Chart === 'undefined') return;
+
+            const dados = JSON.parse(scriptEl.textContent || '{}');
+
+            const formatCurrency = (valor) => `R$ ${valor.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            })}`;
+
+            const formatWithUnit = (valor, unidade) => `${valor.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            })} ${unidade}`;
+
+            const criarPizzaComparativa = ({ canvasId, turistas, habitantes, cores, formatter }) => {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+
+                const valores = [Math.max(turistas, 0), Math.max(habitantes, 0)];
+                const total = valores.reduce((acc, val) => acc + val, 0);
+
+                if (total <= 0) {
+                    canvas.parentElement.innerHTML = '<p class="text-muted text-center mb-0">Sem dados suficientes para exibir o gráfico.</p>';
+                    return;
+                }
+
+                new Chart(canvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Turistas', 'Habitantes'],
+                        datasets: [{
+                            data: valores,
+                            backgroundColor: cores,
+                            hoverOffset: 14,
+                            borderWidth: 1,
+                            borderColor: '#2125290d',
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '55%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                },
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label(context) {
+                                        const valor = context.raw || 0;
+                                        const percent = total > 0 ? (valor / total) * 100 : 0;
+                                        return `${context.label}: ${formatter(valor)} (${percent.toFixed(1)}%)`;
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            };
+
+            criarPizzaComparativa({
+                canvasId: 'economicPie',
+                turistas: dados.impacto_total || 0,
+                habitantes: dados.impacto_residentes || 0,
+                cores: ['#198754', '#0b3d2e'],
+                formatter: formatCurrency,
+            });
+
+            criarPizzaComparativa({
+                canvasId: 'waterPie',
+                turistas: (dados.consumo_agua_total || 0) / 1000, // em m³
+                habitantes: (dados.consumo_agua_residentes || 0) / 1000,
+                cores: ['#0d6efd', '#051a44'],
+                formatter: (valor) => formatWithUnit(valor, 'm³'),
+            });
+
+            criarPizzaComparativa({
+                canvasId: 'wastePie',
+                turistas: (dados.producao_lixo_total || 0) / 1000, // em toneladas
+                habitantes: (dados.lixo_residentes || 0) / 1000,
+                cores: ['#ffc107', '#a66300'],
+                formatter: (valor) => formatWithUnit(valor, 't'),
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

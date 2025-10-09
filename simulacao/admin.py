@@ -4,6 +4,8 @@ from django.contrib import admin
 
 from .models import Cidade, Simulacao, Relatorio
 
+from .models import ImpactoEconomico
+
 @admin.register(Cidade)
 class CidadeAdmin(admin.ModelAdmin):
     list_display = ("nome", "populacao", "pib_per_capita")
@@ -23,4 +25,44 @@ class RelatorioAdmin(admin.ModelAdmin):
     readonly_fields = ("criado_em",)
 
 
-## Admin de ImpactoEconomico removido.
+@admin.register(ImpactoEconomico)
+class ImpactoEconomicoAdmin(admin.ModelAdmin):
+    list_display = (
+        "nome_simulacao",
+        "cidade",
+        "numero_turistas",
+        "gasto_medio",
+        "duracao_estadia",
+    # "cidades_visitadas",  # Removido pois não existe mais
+        "impacto_total_display",
+        "impacto_por_cidade_display",
+        "gasto_total_turistas_display",
+        "data_criacao",
+    )
+    list_filter = ("data_criacao",)
+    search_fields = ("nome_simulacao",)
+    readonly_fields = (
+        "data_criacao",
+    )
+    list_display_links = ("nome_simulacao", "cidade")
+
+    # Mostra a cidade da simulação
+    def cidade(self, obj):
+        return obj.simulacao.cidade
+    cidade.admin_order_field = "simulacao__cidade"
+    cidade.short_description = "Cidade"
+
+    # Campos calculados
+
+    def impacto_total_display(self, obj):
+        return obj.impacto_total
+    impacto_total_display.short_description = "Impacto Total"
+
+    def impacto_por_cidade_display(self, obj):
+        return obj.calcular_impacto_por_cidade()
+    impacto_por_cidade_display.short_description = "Impacto por Cidade"
+
+    def gasto_total_turistas_display(self, obj):
+        return obj.gasto_total_turistas()
+    gasto_total_turistas_display.short_description = "Gasto Total Turistas"
+    gasto_total_turistas_display.short_description = "Gasto Total Turistas"

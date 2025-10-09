@@ -1,31 +1,154 @@
 {% extends 'base.html' %}
 
-{% block title %}Simulação - EcoImpact{% endblock %}
+{% block title %}Simulação de Impacto Econômico{% endblock %}
 {% block content %}
-<h2>Nova Simulação</h2>
-{% if erro %}
-  <div style="color:#b00;font-weight:bold;">Erro: {{ erro }}</div>
-{% endif %}
-<form method="post" novalidate>
-  {% csrf_token %}
-  <fieldset>
-    {{ form.non_field_errors }}
-    {{ form.cidade_principal.errors }}
-    <label>{{ form.cidade_principal.label }}<br>{{ form.cidade_principal }}</label><br>
-    <label>{{ form.numero_turistas.label }}<br>{{ form.numero_turistas }}</label><br>
-    <label>{{ form.gasto_medio.label }}<br>{{ form.gasto_medio }}</label><br>
-    <label>{{ form.duracao_estadia.label }}<br>{{ form.duracao_estadia }}</label><br>
-    <label>{{ form.cidades_visitadas.label }}<br>{{ form.cidades_visitadas }}<br>
-      <small>{{ form.cidades_visitadas.help_text }}</small>
-    </label><br>
-    <label>{{ form.cenario.label }}<br>{{ form.cenario }}</label><br>
-    <label>{{ form.multiplicador.label }}<br>{{ form.multiplicador }}<br>
-      <small>{{ form.multiplicador.help_text }}</small>
-    </label>
-  </fieldset>
-  <button type="submit">Calcular Impacto</button>
-</form>
-<p style="margin-top:1rem;">
-  <strong>Dica:</strong> deixe Multiplicador vazio para usar o cenário selecionado.
-</p>
+<style>
+  /* Animação fade-in para o formulário */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  html, body {
+    height: 100%;
+    min-height: 100vh;
+    background-color: #f3f3f3 !important;
+    font-size: 1.08rem;
+  }
+  .bg-simulacao {
+    min-height: 100vh;
+    background-color: #f3f3f3 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-parametro {
+    border: 2px solid #1a5f3f;
+    background: linear-gradient(135deg, #e9ecef 80%, #d4e7dd 100%);
+    box-shadow: 0 2px 8px rgba(26,95,63,0.10);
+    font-size: 1.05em;
+    padding: 1.2rem 1rem;
+  }
+  .card-cidade {
+    border: 2px solid #1a5f3f;
+    background: linear-gradient(135deg, #e9ecef 80%, #d4e7dd 100%);
+    box-shadow: 0 2px 8px rgba(26,95,63,0.10);
+    font-size: 1.05em;
+    padding: 1.2rem 1rem;
+  }
+  .btn-simulacao {
+    background: linear-gradient(90deg, #1a5f3f 60%, #2d4a3e 100%);
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 2px 8px rgba(26,95,63,0.12);
+    font-size: 1.08em;
+    padding: 0.6em 0;
+    border-radius: 0.45em;
+  }
+  .btn-simulacao:hover {
+    opacity: 0.92;
+    transform: scale(1.03);
+    box-shadow: 0 4px 16px rgba(26,95,63,0.14);
+  }
+  .form-control, .form-select {
+    font-size: 1.05em !important;
+    padding: 0.6em 0.8em !important;
+    min-height: 2.5em !important;
+    border-radius: 0.35em !important;
+  }
+</style>
+<div class="bg-simulacao">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+  <div class="col-lg-8 fade-in">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <h2 class="fw-bold mb-2 text-center" style="color:#1a5f3f;">Simulador de Impacto Econômico COP-30</h2>
+          <p class="mb-4 text-center text-secondary">Preencha os parâmetros acima e clique em <strong>Simular</strong> para ver os resultados do impacto econômico, ambiental e social da COP-30 nas cidades escolhidas.</p>
+          <div class="mb-4">
+            <div class="card card-cidade">
+              <div class="card-header" style="background: #1a5f3f; color: #fff;">
+                <label class="form-label fw-bold">🏙️ Cidade Impactada</label>
+              </div>
+              <div class="card-body">
+                {{ form.cidade_selecionada }}
+                {% for error in form.cidade_selecionada.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="row mb-4">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <div class="card card-parametro p-3">
+                <label class="form-label fw-bold">👥 {{ form.numero_visitantes.label }}</label>
+                {{ form.numero_visitantes }}
+                {% for error in form.numero_visitantes.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card card-parametro p-3">
+                <label class="form-label fw-bold">💸 {{ form.gasto_medio_diario.label }}</label>
+                {{ form.gasto_medio_diario }}
+                {% for error in form.gasto_medio_diario.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="row mb-4">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <div class="card card-parametro p-3">
+                <label class="form-label fw-bold">📅 {{ form.duracao_evento.label }}</label>
+                {{ form.duracao_evento }}
+                {% for error in form.duracao_evento.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card card-parametro p-3">
+                <label class="form-label fw-bold">📈 {{ form.multiplicador.label }}</label>
+                {{ form.multiplicador }}
+                {% for error in form.multiplicador.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+            <div class="row mb-4">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <div class="card card-parametro p-3">
+                  <label class="form-label fw-bold">🗑️ {{ form.lixo_gerado_por_pessoa.label }}</label>
+                  {{ form.lixo_gerado_por_pessoa }}
+                  {% for error in form.lixo_gerado_por_pessoa.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card card-parametro p-3">
+                  <label class="form-label fw-bold">💧 {{ form.agua_consumida_por_pessoa.label }}</label>
+                  {{ form.agua_consumida_por_pessoa }}
+                  {% for error in form.agua_consumida_por_pessoa.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-simulacao w-100 py-2 mt-3">Simular</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

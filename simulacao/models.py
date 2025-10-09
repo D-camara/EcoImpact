@@ -1,6 +1,11 @@
-"""Modelagem mínima: Cidade, Simulacao, Relatorio."""
+"""Modelos de domínio (scaffolding).
+
+Implemente os campos que desejarem manter. Estrutura básica pronta.
+"""
 
 from __future__ import annotations
+
+from decimal import Decimal
 
 from django.db import models
 
@@ -9,7 +14,6 @@ class Cidade(models.Model):
     nome = models.CharField(max_length=120, unique=True)
     populacao = models.PositiveIntegerField()
     pib_per_capita = models.DecimalField(max_digits=12, decimal_places=2)
-    estado = models.CharField(max_length=50, default="Pará", help_text="Unidade federativa (default Pará)")
 
     class Meta:
         ordering = ["nome"]
@@ -39,4 +43,54 @@ class Relatorio(models.Model):
         return f"Relatório Simulação {self.simulacao_id}"
 
 
-## Modelo ImpactoEconomico removido (fora do escopo atual).
+class ImpactoEconomico(models.Model):
+    """Modelo que calcula o impacto econômico do turismo a partir da Simulação"""
+    
+    simulacao = models.OneToOneField(Simulacao, on_delete=models.CASCADE, related_name="impacto")
+    nome_simulacao = models.CharField(max_length=100, blank=True, help_text="Dê um nome para sua simulação")
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    # Dados para cálculo
+    numero_turistas = models.PositiveIntegerField(help_text="Quantos turistas visitaram?")
+    gasto_medio = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="Quanto cada turista gasta por dia? (R$)"
+    )
+    duracao_estadia = models.PositiveIntegerField(help_text="Quantos dias eles ficam?")
+
+    # Métodos de cálculo
+    @property
+    def impacto_total(self):
+        if self.numero_turistas is None or self.gasto_medio is None or self.duracao_estadia is None:
+            return Decimal("0")
+        return self.calcular_impacto_total()
+
+    def calcular_impacto_total(self) -> Decimal:
+        """Retorna o impacto econômico total da simulação."""
+
+        return (
+            Decimal(self.numero_turistas)
+            * self.gasto_medio
+            * Decimal(self.duracao_estadia)
+        )
+
+    def calcular_impacto_por_cidade(self, total_cidades: int = 1) -> Decimal:
+        """Divide o impacto total pela quantidade de cidades consideradas."""
+
+        if total_cidades <= 0:
+            return self.calcular_impacto_total()
+        return self.calcular_impacto_total() / Decimal(total_cidades)
+
+    def gasto_total_turistas(self) -> Decimal:
+        """Total gasto por todos os turistas."""
+
+        return self.calcular_impacto_total()
+
+    def __str__(self):
+        return f"Impacto Econômico: {self.nome_simulacao or f'Simulação {self.simulacao_id}'}"
+
+    class Meta:
+        ordering = ["-data_criacao"]
+        verbose_name = "Cálculo de Impacto Econômico"
+        verbose_name_plural = "Cálculos de Impacto Econômico"
