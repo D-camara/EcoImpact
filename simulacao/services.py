@@ -13,26 +13,49 @@ def calcular_impacto_economico(parametros: Dict[str, Any]) -> Dict[str, Any]:
         numero_turistas = int(parametros.get('numero_turistas', 0))
         gasto_medio = float(parametros.get('gasto_medio', 0))
         duracao_estadia = int(parametros.get('duracao_estadia', 0))
-        multiplicador = float(parametros.get('multiplicador', 2.5))
-        
+
+        cenario = (parametros.get('cenario') or 'realista').strip().lower()
+        multiplicadores_por_cenario = {
+            'conservador': 1.8,
+            'realista': 2.5,
+            'otimista': 3.4,
+        }
+
+        if cenario not in multiplicadores_por_cenario:
+            raise ParametrosInvalidos("cenario inválido. Use conservador, realista ou otimista")
+
+        multiplicador = float(parametros.get('multiplicador') or multiplicadores_por_cenario[cenario])
+
         # Novos parâmetros ambientais
-        consumo_agua_pessoa = float(parametros.get('consumo_agua_pessoa', 150.0))
-        producao_lixo_pessoa = float(parametros.get('producao_lixo_pessoa', 2.5))
+        consumo_agua_pessoa = float(parametros.get('consumo_agua_pessoa') or 150.0)
+        producao_lixo_pessoa = float(parametros.get('producao_lixo_pessoa') or 2.5)
 
         # Agora trabalhamos com cidades selecionadas do banco de dados
-        cidades_selecionadas = parametros.get('cidades_selecionadas', [])
+        cidades_selecionadas = parametros.get('cidades_selecionadas', None)
+
+        lista_cidades: list[str]
+        n_cidades: int
+
         if isinstance(cidades_selecionadas, (list, tuple)):
             lista_cidades = [str(cidade).strip() for cidade in cidades_selecionadas if str(cidade).strip()]
             n_cidades = len(lista_cidades)
         else:
-            # Fallback para compatibilidade
+            lista_cidades = []
+            n_cidades = 0
+
+        # Fallback para manter compatibilidade com versões antigas do formulário/API
+        if n_cidades == 0:
             cidades_raw = parametros.get('cidades_visitadas', [])
             if isinstance(cidades_raw, int):
-                n_cidades = cidades_raw
+                n_cidades = max(0, cidades_raw)
                 lista_cidades = [f"Cidade {i+1}" for i in range(n_cidades)]
-            else:
-                lista_cidades = []
-                n_cidades = 0
+            elif isinstance(cidades_raw, (list, tuple)):
+                lista_cidades = [str(cidade).strip() for cidade in cidades_raw if str(cidade).strip()]
+                n_cidades = len(lista_cidades)
+            elif isinstance(cidades_raw, str) and cidades_raw.strip():
+                # Aceita string separada por vírgula como fallback adicional
+                lista_cidades = [parte.strip() for parte in cidades_raw.split(',') if parte.strip()]
+                n_cidades = len(lista_cidades)
 
     except (ValueError, TypeError) as e:
         raise ParametrosInvalidos(f"Erro ao converter parâmetros: {e}")
@@ -78,6 +101,7 @@ def calcular_impacto_economico(parametros: Dict[str, Any]) -> Dict[str, Any]:
         'gasto_total': round(gasto_total, 2),
         'gasto_total_ajustado': round(gasto_ajustado, 2),
         'multiplicador': round(multiplicador, 4),
+        'cenario': cenario,
         'ajuste_cidades': round(ajuste_cidades, 4),
         'fator_duracao': round(fator_duracao, 4),
         'numero_turistas': numero_turistas,

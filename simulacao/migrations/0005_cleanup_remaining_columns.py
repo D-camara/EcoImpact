@@ -54,5 +54,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RemoveField(
+            model_name="cidade",
+            name="estado",
+        ),
         migrations.RunPython(drop_city_and_report_columns, migrations.RunPython.noop),
     ]

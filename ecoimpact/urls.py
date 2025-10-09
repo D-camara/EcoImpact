@@ -24,6 +24,6 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('simulador', TemplateView.as_view(template_name='simulador.html'), name='simulador_antigo'),
-    path('', include('simulacao.urls')),
+    path('', include(('simulacao.urls', 'simulacao'), namespace='simulacao')),
     path('', views.home, name='home'),
 ]

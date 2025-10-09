@@ -1,0 +1,38 @@
+[
+  {
+    "model": "simulacao.cidade",
+    "pk": 1,
+    "fields": {
+      "nome": "Belém",
+      "populacao": 1499641,
+      "pib_per_capita": "35987.20"
+    }
+  },
+  {
+    "model": "simulacao.cidade",
+    "pk": 2,
+    "fields": {
+      "nome": "Santarém",
+      "populacao": 308339,
+      "pib_per_capita": "27645.10"
+    }
+  },
+  {
+    "model": "simulacao.cidade",
+    "pk": 3,
+    "fields": {
+      "nome": "Marabá",
+      "populacao": 283542,
+      "pib_per_capita": "31200.00"
+    }
+  },
+  {
+    "model": "simulacao.cidade",
+    "pk": 4,
+    "fields": {
+      "nome": "Altamira",
+      "populacao": 115969,
+      "pib_per_capita": "29875.50"
+    }
+  }
+]

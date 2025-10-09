@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_http_methods
 
 from .forms import SimulacaoForm
@@ -123,7 +123,8 @@ def simulacao_view(request: HttpRequest) -> HttpResponse:
 @require_http_methods(["POST"])
 def api_simular(request: HttpRequest) -> JsonResponse:
     import json
-    from .services import calcular_impacto_economico
+    from .models import Cidade, Simulacao, Relatorio
+    from .services import calcular_impacto_economico, ParametrosInvalidos
 
     try:
         dados = json.loads(request.body)
@@ -131,46 +132,69 @@ def api_simular(request: HttpRequest) -> JsonResponse:
         return JsonResponse({
             "erro": "JSON inválido. Envie os dados no formato correto.",
             "exemplo": {
+                "cidade_id": 1,
                 "numero_turistas": 100,
                 "gasto_medio": 150.50,
                 "duracao_estadia": 7,
                 "cidades_visitadas": 3,
-                "multiplicador": 1.0,
+                "cenario": "realista",
             },
         }, status=400)
 
-    # Valida campos obrigatórios
-    obrigatorios = ["numero_turistas", "gasto_medio", "duracao_estadia", "cidades_visitadas"]
-    for campo in obrigatorios:
-        if campo not in dados:
-            return JsonResponse({"erro": f"Campo '{campo}' é obrigatório."}, status=400)
-
-    # Garante que o multiplicador tenha valor padrão
-    dados.setdefault("multiplicador", 1.0)
-
-    # Validação de tipos
-    if not isinstance(dados["numero_turistas"], int):
-        return JsonResponse({"erro": "O campo 'numero_turistas' deve ser um número inteiro."}, status=400)
-    if not isinstance(dados["gasto_medio"], (int, float)):
-        return JsonResponse({"erro": "O campo 'gasto_medio' deve ser numérico."}, status=400)
-    if not isinstance(dados["duracao_estadia"], int):
-        return JsonResponse({"erro": "O campo 'duracao_estadia' deve ser um número inteiro."}, status=400)
-    if not isinstance(dados["cidades_visitadas"], int):
-        return JsonResponse({"erro": "O campo 'cidades_visitadas' deve ser um número inteiro."}, status=400)
-    if not isinstance(dados["multiplicador"], (int, float)):
-        return JsonResponse({"erro": "O campo 'multiplicador' deve ser numérico."}, status=400)
+    obrigatorios = {"cidade_id", "numero_turistas", "gasto_medio", "duracao_estadia", "cidades_visitadas"}
+    faltantes = obrigatorios - set(dados)
+    if faltantes:
+        campo = sorted(faltantes)[0]
+        return JsonResponse({"erro": f"Campo '{campo}' é obrigatório."}, status=400)
 
     try:
-        resultado = calcular_impacto_economico(dados)
-    except Exception as e:
-        return JsonResponse({"erro": f"Erro interno ao calcular impacto: {str(e)}"}, status=500)
+        cidade = Cidade.objects.get(pk=dados["cidade_id"])
+    except Cidade.DoesNotExist:
+        return JsonResponse({"erro": "Cidade informada não foi encontrada."}, status=400)
 
-    if "erro" in resultado:
-        return JsonResponse(resultado, status=400)
+    parametros = {
+        "numero_turistas": dados["numero_turistas"],
+        "gasto_medio": dados["gasto_medio"],
+        "duracao_estadia": dados["duracao_estadia"],
+        "cidades_visitadas": dados.get("cidades_visitadas", []),
+        "cidades_selecionadas": [cidade.nome],
+        "multiplicador": dados.get("multiplicador"),
+        "cenario": dados.get("cenario"),
+        "consumo_agua_pessoa": dados.get("consumo_agua_pessoa"),
+        "producao_lixo_pessoa": dados.get("producao_lixo_pessoa"),
+    }
 
-    return JsonResponse(resultado)
+    try:
+        resultado = calcular_impacto_economico(parametros)
+    except ParametrosInvalidos as exc:
+        return JsonResponse({"erro": str(exc)}, status=400)
+    except Exception as exc:  # salvaguarda inesperada
+        return JsonResponse({"erro": f"Erro interno ao calcular impacto: {exc}"}, status=500)
+
+    simulacao = Simulacao.objects.create(
+        cidade=cidade,
+        parametros=parametros,
+    )
+    Relatorio.objects.create(simulacao=simulacao, resultado=resultado)
+
+    return JsonResponse(
+        {
+            "simulacao_id": simulacao.id,
+            "resultado": resultado,
+        },
+        status=201,
+    )
 
 
 @require_http_methods(["GET"])  # Scaffold de API
 def api_resultado(request: HttpRequest, simulacao_id: int) -> JsonResponse:
-    return JsonResponse({"detail": f"TODO: implementar resultado para simulacao_id={simulacao_id}"}, status=501)
+    from .models import Relatorio
+
+    relatorio = get_object_or_404(Relatorio, simulacao_id=simulacao_id)
+
+    return JsonResponse(
+        {
+            "simulacao_id": simulacao_id,
+            "resultado": relatorio.resultado,
+        }
+    )

@@ -1,6 +1,5 @@
 
 from __future__ import annotations
-app_name = "simulacao"
 
 from django.urls import path
 from . import views
