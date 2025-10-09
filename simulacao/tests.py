@@ -74,6 +74,35 @@ class TestCalculoImpacto(TestCase):
         self.assertLessEqual(muitas['ajuste_cidades'], 1.10)
 
 
+class TestWebFluxo(TestCase):
+    def setUp(self):
+        self.cidade, _ = Cidade.objects.get_or_create(
+            nome="Belém",
+            defaults={
+                'populacao': 1500000,
+                'pib_per_capita': 35000,
+            }
+        )
+
+    def test_form_simulacao_cria_relatorio(self):
+        url = reverse('simulacao:simular')
+        payload = {
+            'cidade_selecionada': self.cidade.id,
+            'numero_visitantes': 50000,
+            'gasto_medio_diario': 250,
+            'duracao_evento': 10,
+            'multiplicador': 2.5,
+            'lixo_gerado_por_pessoa': 2.5,
+            'agua_consumida_por_pessoa': 150,
+        }
+
+        response = self.client.post(url, data=payload)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Relatorio.objects.filter(simulacao__cidade=self.cidade).exists())
+        self.assertIn('resultado', response.context)
+
+
 class TestAPIs(TestCase):
     def setUp(self):
         self.cidade, _ = Cidade.objects.get_or_create(
