@@ -9,6 +9,27 @@
   margin-bottom: 4rem;
 }
 
+.hero-desc .hero-cta-link {
+  display: inline-block;
+  margin-left: 0.25rem;
+  padding: 0.35em 0.85em;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #0f5132 !important;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 0.14em;
+  text-underline-offset: 0.3em;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.hero-desc .hero-cta-link:hover,
+.hero-desc .hero-cta-link:focus {
+  background-color: rgba(255, 255, 255, 1);
+  color: #0a3622 !important;
+  transform: translateY(-1px);
+}
+
 body {
   font-family: "Rubik", sans-serif;
   font-optical-sizing: auto;
