@@ -15,6 +15,24 @@ def ensure_impacto_table(apps, schema_editor):
         schema_editor.create_model(impacto_model)
 
 
+def drop_cidades_visitadas_if_exists(apps, schema_editor):
+    impacto_model = apps.get_model('simulacao', 'ImpactoEconomico')
+    table_name = impacto_model._meta.db_table
+
+    connection = schema_editor.connection
+    introspection = connection.introspection
+
+    with connection.cursor() as cursor:
+        existing_columns = {
+            column.name for column in introspection.get_table_description(cursor, table_name)
+        }
+
+    if 'cidades_visitadas' in existing_columns:
+        schema_editor.execute(
+            f"ALTER TABLE {schema_editor.quote_name(table_name)} DROP COLUMN {schema_editor.quote_name('cidades_visitadas')}"
+        )
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -23,8 +41,15 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(ensure_impacto_table, migrations.RunPython.noop),
-        migrations.RemoveField(
-            model_name='impactoeconomico',
-            name='cidades_visitadas',
+        migrations.SeparateDatabaseAndState(
+            database_operations=[
+                migrations.RunPython(drop_cidades_visitadas_if_exists, migrations.RunPython.noop),
+            ],
+            state_operations=[
+                migrations.RemoveField(
+                    model_name='impactoeconomico',
+                    name='cidades_visitadas',
+                ),
+            ],
         ),
     ]
