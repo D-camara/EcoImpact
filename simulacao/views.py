@@ -1,4 +1,82 @@
+
 from __future__ import annotations
+
+from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import EmailMultiAlternatives
+import matplotlib.pyplot as plt
+import io
+import base64
+from django.conf import settings
+from django.views.decorators.http import require_http_methods
+import json
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def enviar_email_resultado(request: HttpRequest) -> JsonResponse:
+    try:
+        data = json.loads(request.body)
+        email = data.get('email')
+        resultado = data.get('resultado')
+        if not email or not resultado:
+            return JsonResponse({'error': 'E-mail e resultado são obrigatórios.'}, status=400)
+
+        # Monta mensagem HTML e gráficos
+        assunto = 'Resultado da Simulação EcoImpact'
+        # Gráfico de impacto econômico por cidade
+        cidades = list(resultado.get('impacto_por_cidade', {}).keys())
+        valores = list(resultado.get('impacto_por_cidade', {}).values())
+        fig, ax = plt.subplots(figsize=(6, 3))
+        ax.bar(cidades, valores, color='#34d399')
+        ax.set_title('Impacto Econômico por Cidade')
+        ax.set_ylabel('R$')
+        plt.tight_layout()
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        plt.close(fig)
+        buf.seek(0)
+        img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+
+        html_content = f'''
+        <html>
+        <body style="font-family:Arial,sans-serif;">
+            <h2 style="color:#198754;">Resultado da Simulação EcoImpact</h2>
+            <p><b>Cidade:</b> {resultado.get('cidades_visitadas', [''])[0]}<br>
+            <b>Número de turistas:</b> {resultado.get('numero_turistas', '')}<br>
+            <b>Duração do evento:</b> {resultado.get('duracao_estadia', '')} dias<br>
+            <b>Gasto médio diário:</b> R$ {resultado.get('gasto_medio', '')}<br>
+            <b>Multiplicador econômico:</b> {resultado.get('multiplicador', '')}</p>
+            <h3 style="color:#0d6efd;">Impacto Econômico</h3>
+            <ul>
+                <li><b>Impacto total:</b> R$ {resultado.get('impacto_total', '')}</li>
+                <li><b>Gasto total ajustado:</b> R$ {resultado.get('gasto_total_ajustado', '')}</li>
+            </ul>
+            <h3 style="color:#0d6efd;">Impacto Ambiental</h3>
+            <ul>
+                <li><b>Consumo total de água:</b> {resultado.get('consumo_agua_total', '')} litros ({resultado.get('consumo_agua_total_m3', '')} m³)</li>
+                <li><b>Produção total de lixo:</b> {resultado.get('producao_lixo_total', '')} kg ({resultado.get('producao_lixo_total_toneladas', '')} toneladas)</li>
+            </ul>
+            <h3 style="color:#0d6efd;">Impacto por Cidade</h3>
+            <ul>
+                {''.join([f'<li>{cidade}: R$ {valor}</li>' for cidade, valor in resultado.get('impacto_por_cidade', {}).items()])}
+            </ul>
+            <h3 style="color:#0d6efd;">Gráfico</h3>
+            <img src="data:image/png;base64,{img_base64}" alt="Gráfico Impacto Econômico" style="max-width:100%;border:1px solid #eee;border-radius:8px;">
+            <p style="margin-top:2em;color:#198754;">Obrigado por usar o EcoImpact!</p>
+        </body>
+        </html>
+        '''
+
+        msg = EmailMultiAlternatives(
+            subject=assunto,
+            body='Resultado da simulação EcoImpact em HTML.',
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'ecoimpact@localhost'),
+            to=[email],
+        )
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404

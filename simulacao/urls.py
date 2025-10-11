@@ -8,4 +8,5 @@ urlpatterns = [
     path("simular/", views.simulacao_view, name="simular"),
     path("api/simular/", views.api_simular, name="api_simular"),
     path("api/resultados/<int:simulacao_id>/", views.api_resultado, name="api_resultado"),
+    path("enviar-email-resultado/", views.enviar_email_resultado, name="enviar_email_resultado"),
 ]

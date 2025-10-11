@@ -186,6 +186,18 @@
                     <div class="action-bar">
                         <a href="{% url 'simulacao:simular' %}" class="btn btn-simulacao">Realizar nova simulação</a>
                         <button type="button" class="btn btn-acao-secundaria" onclick="window.print()">Imprimir relatório</button>
+                        <div class="email-send-wrapper" style="margin-top: 1.5rem;">
+                            <label for="email-result" class="form-label">Receber resultado por e-mail:</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="email" id="email-result" class="form-control" placeholder="Seu e-mail" required style="max-width: 300px;">
+                                <button type="button" class="btn btn-success" id="btn-send-email">Enviar por e-mail</button>
+                            </div>
+                        </div>
+                        <div id="email-success-popup" class="popup-success" style="display:none;position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:8px;padding:2rem;box-shadow:0 2px 16px #0002;z-index:9999;text-align:center;">
+                            <h4>✅ Enviado com sucesso!</h4>
+                            <p>O resultado foi enviado para o e-mail informado.</p>
+                            <button onclick="document.getElementById('email-success-popup').style.display='none'" class="btn btn-success">OK</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -198,6 +210,39 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Envio de resultado por e-mail
+            const btnSendEmail = document.getElementById('btn-send-email');
+            if (btnSendEmail) {
+                btnSendEmail.addEventListener('click', async () => {
+                    const email = document.getElementById('email-result').value.trim();
+                    if (!email) {
+                        alert('Informe um e-mail válido.');
+                        return;
+                    }
+                    btnSendEmail.disabled = true;
+                    btnSendEmail.textContent = 'Enviando...';
+                    try {
+                        const resultadoData = document.getElementById('resultado-data').textContent;
+                        const response = await fetch('{% url "simulacao:enviar_email_resultado" %}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token }}',
+                            },
+                            body: JSON.stringify({ email, resultado: JSON.parse(resultadoData) })
+                        });
+                        if (response.ok) {
+                            document.getElementById('email-success-popup').style.display = 'block';
+                        } else {
+                            alert('Falha ao enviar e-mail. Tente novamente.');
+                        }
+                    } catch (e) {
+                        alert('Erro ao enviar e-mail.');
+                    }
+                    btnSendEmail.disabled = false;
+                    btnSendEmail.textContent = 'Enviar por e-mail';
+                });
+            }
             const scriptEl = document.getElementById('resultado-data');
             if (!scriptEl || typeof Chart === 'undefined') return;
 

@@ -1,3 +1,12 @@
+
+# Email backend para produção (Gmail)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'enberlender1@gmail.com'
+EMAIL_HOST_PASSWORD = 'odef pgrv szam jjbv'
+DEFAULT_FROM_EMAIL = 'EcoImpact <enberlender1@gmail.com>'
 """
 Django settings for ecoimpact project.
 
