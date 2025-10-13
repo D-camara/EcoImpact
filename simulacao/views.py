@@ -3,9 +3,6 @@ from __future__ import annotations
 
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMultiAlternatives
-import matplotlib.pyplot as plt
-import io
-import base64
 from django.conf import settings
 from django.views.decorators.http import require_http_methods
 import json
@@ -20,59 +17,77 @@ def enviar_email_resultado(request: HttpRequest) -> JsonResponse:
         if not email or not resultado:
             return JsonResponse({'error': 'E-mail e resultado são obrigatórios.'}, status=400)
 
-        # Monta mensagem HTML e gráficos
+        # Monta mensagem de texto com resumo dos resultados
         assunto = 'Resultado da Simulação EcoImpact'
-        # Gráfico de impacto econômico por cidade
-        cidades = list(resultado.get('impacto_por_cidade', {}).keys())
-        valores = list(resultado.get('impacto_por_cidade', {}).values())
-        fig, ax = plt.subplots(figsize=(6, 3))
-        ax.bar(cidades, valores, color='#34d399')
-        ax.set_title('Impacto Econômico por Cidade')
-        ax.set_ylabel('R$')
-        plt.tight_layout()
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        plt.close(fig)
-        buf.seek(0)
-        img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+        cidades_visitadas = resultado.get('cidades_visitadas', [])
+        impacto_por_cidade = resultado.get('impacto_por_cidade', {})
 
-        html_content = f'''
+        linhas = [
+            'Resultado da Simulação EcoImpact',
+            '',
+            f"Cidade(s): {', '.join(cidades_visitadas) if cidades_visitadas else 'Não informada'}",
+            f"Número de turistas: {resultado.get('numero_turistas', '-')}",
+            f"Duração do evento: {resultado.get('duracao_estadia', '-')} dia(s)",
+            f"Gasto médio diário: R$ {resultado.get('gasto_medio', '-')}",
+            f"Multiplicador econômico: {resultado.get('multiplicador', '-')}",
+            '',
+            'Impacto Econômico:',
+            f"  - Impacto total: R$ {resultado.get('impacto_total', '-')}",
+            f"  - Gasto total ajustado: R$ {resultado.get('gasto_total_ajustado', '-')}",
+            '',
+            'Impacto Ambiental:',
+            f"  - Consumo total de água: {resultado.get('consumo_agua_total', '-')} litros ({resultado.get('consumo_agua_total_m3', '-')} m³)",
+            f"  - Produção total de lixo: {resultado.get('producao_lixo_total', '-')} kg ({resultado.get('producao_lixo_total_toneladas', '-')} toneladas)",
+        ]
+
+        if impacto_por_cidade:
+            linhas.append('')
+            linhas.append('Impacto por Cidade:')
+            for cidade, valor in impacto_por_cidade.items():
+                linhas.append(f"  - {cidade}: R$ {valor}")
+
+        linhas.append('')
+        linhas.append('Obrigado por usar o EcoImpact!')
+
+        corpo_texto = '\n'.join(linhas)
+
+        # Corpo HTML
+        corpo_html = f'''
         <html>
-        <body style="font-family:Arial,sans-serif;">
-            <h2 style="color:#198754;">Resultado da Simulação EcoImpact</h2>
-            <p><b>Cidade:</b> {resultado.get('cidades_visitadas', [''])[0]}<br>
-            <b>Número de turistas:</b> {resultado.get('numero_turistas', '')}<br>
-            <b>Duração do evento:</b> {resultado.get('duracao_estadia', '')} dias<br>
-            <b>Gasto médio diário:</b> R$ {resultado.get('gasto_medio', '')}<br>
-            <b>Multiplicador econômico:</b> {resultado.get('multiplicador', '')}</p>
-            <h3 style="color:#0d6efd;">Impacto Econômico</h3>
+        <body style="font-family: Arial, sans-serif; color: #222;">
+            <h2 style="color: #2e7d32;">Resultado da Simulação EcoImpact</h2>
+            <p>Olá,</p>
+            <p>Segue o resumo da sua simulação:</p>
+            <table style="border-collapse: collapse; width: 100%; max-width: 480px;">
+                <tr><th align="left">Cidade(s)</th><td>{', '.join(cidades_visitadas) if cidades_visitadas else 'Não informada'}</td></tr>
+                <tr><th align="left">Turistas</th><td>{resultado.get('numero_turistas', '-')}</td></tr>
+                <tr><th align="left">Duração</th><td>{resultado.get('duracao_estadia', '-')} dia(s)</td></tr>
+                <tr><th align="left">Gasto médio diário</th><td>R$ {resultado.get('gasto_medio', '-')}</td></tr>
+                <tr><th align="left">Multiplicador econômico</th><td>{resultado.get('multiplicador', '-')}</td></tr>
+            </table>
+            <h3 style="margin-top:2em;color:#1565c0;">Impacto Econômico</h3>
             <ul>
-                <li><b>Impacto total:</b> R$ {resultado.get('impacto_total', '')}</li>
-                <li><b>Gasto total ajustado:</b> R$ {resultado.get('gasto_total_ajustado', '')}</li>
+                <li><b>Impacto total:</b> R$ {resultado.get('impacto_total', '-')}</li>
+                <li><b>Gasto total ajustado:</b> R$ {resultado.get('gasto_total_ajustado', '-')}</li>
             </ul>
-            <h3 style="color:#0d6efd;">Impacto Ambiental</h3>
+            <h3 style="margin-top:2em;color:#1565c0;">Impacto Ambiental</h3>
             <ul>
-                <li><b>Consumo total de água:</b> {resultado.get('consumo_agua_total', '')} litros ({resultado.get('consumo_agua_total_m3', '')} m³)</li>
-                <li><b>Produção total de lixo:</b> {resultado.get('producao_lixo_total', '')} kg ({resultado.get('producao_lixo_total_toneladas', '')} toneladas)</li>
+                <li><b>Consumo total de água:</b> {resultado.get('consumo_agua_total', '-')} litros ({resultado.get('consumo_agua_total_m3', '-')}&nbsp;m³)</li>
+                <li><b>Produção total de lixo:</b> {resultado.get('producao_lixo_total', '-')} kg ({resultado.get('producao_lixo_total_toneladas', '-')}&nbsp;toneladas)</li>
             </ul>
-            <h3 style="color:#0d6efd;">Impacto por Cidade</h3>
-            <ul>
-                {''.join([f'<li>{cidade}: R$ {valor}</li>' for cidade, valor in resultado.get('impacto_por_cidade', {}).items()])}
-            </ul>
-            <h3 style="color:#0d6efd;">Gráfico</h3>
-            <img src="data:image/png;base64,{img_base64}" alt="Gráfico Impacto Econômico" style="max-width:100%;border:1px solid #eee;border-radius:8px;">
-            <p style="margin-top:2em;color:#198754;">Obrigado por usar o EcoImpact!</p>
+            {'<h4 style="margin-top:2em;">Impacto por Cidade</h4><ul>' + ''.join([f'<li><b>{cidade}:</b> R$ {valor}</li>' for cidade, valor in impacto_por_cidade.items()]) + '</ul>' if impacto_por_cidade else ''}
+            <p style="margin-top:2em;">Obrigado por usar o <b>EcoImpact</b>!<br>Equipe EcoImpact</p>
         </body>
         </html>
         '''
 
         msg = EmailMultiAlternatives(
             subject=assunto,
-            body='Resultado da simulação EcoImpact em HTML.',
+            body=corpo_texto,
             from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'ecoimpact@localhost'),
             to=[email],
         )
-        msg.attach_alternative(html_content, "text/html")
+        msg.attach_alternative(corpo_html, "text/html")
         msg.send()
         return JsonResponse({'success': True})
     except Exception as e:
