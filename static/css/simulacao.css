@@ -147,6 +147,13 @@
   font-weight: 600;
 }
 
+.form-section .form-label .label-break-inline {
+  display: block;
+  font-weight: 500;
+  color: rgba(226, 232, 240, 0.7);
+  line-height: 1.2;
+}
+
 .form-section .row.g-3 {
   align-items: stretch;
 }

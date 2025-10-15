@@ -66,7 +66,7 @@
                                     <header>
                                         <span class="metric-icon">💰</span>
                                         <div>
-                                            <p class="metric-kicker">Impacto econômico</p>
+                                            <p class="metric-kicker">Impacto <span class="label-break">econômico</span></p>
                                             <h4 class="metric-value">R$ {{ resultado.impacto_total|floatformat:2 }}</h4>
                                         </div>
                                     </header>
@@ -121,7 +121,7 @@
 
                         <article class="chart-card chart-card--wide">
                             <header>
-                                <span class="chart-label">Impacto econômico</span>
+                                <span class="chart-label">Impacto <span class="label-break">econômico</span></span>
                                 <span class="chart-badge">R$</span>
                             </header>
                             <div class="chart-body chart-body--wide">
@@ -186,18 +186,17 @@
                     <div class="action-bar">
                         <a href="{% url 'simulacao:simular' %}" class="btn btn-simulacao">Realizar nova simulação</a>
                         <button type="button" class="btn btn-acao-secundaria" onclick="window.print()">Imprimir relatório</button>
-                        <div class="email-send-wrapper" style="margin-top: 1.5rem;">
-                            <label for="email-result" class="form-label">Receber resultado por e-mail:</label>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <input type="email" id="email-result" class="form-control" placeholder="Seu e-mail" required style="max-width: 300px;">
-                                <button type="button" class="btn btn-success" id="btn-send-email">Enviar por e-mail</button>
-                            </div>
+                        <div class="email-send-inline">
+                            <label for="email-result" class="visually-hidden">Receber resultado por e-mail</label>
+                            <input type="email" id="email-result" class="form-control" placeholder="Seu e-mail" required>
+                            <button type="button" class="btn btn-success" id="btn-send-email">Enviar por e-mail</button>
                         </div>
-                        <div id="email-success-popup" class="popup-success" style="display:none;position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);background:#000;color:#f8f9fa;border-radius:8px;padding:2rem;box-shadow:0 2px 16px #0009;z-index:9999;text-align:center;">
-                            <h4>✅ Enviado com sucesso!</h4>
-                            <p>O resultado foi enviado para o e-mail informado.</p>
-                            <button onclick="document.getElementById('email-success-popup').style.display='none'" class="btn btn-success">OK</button>
-                        </div>
+                    </div>
+
+                    <div id="email-success-popup" class="popup-success" style="display:none;position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);background:#000;color:#f8f9fa;border-radius:8px;padding:2rem;box-shadow:0 2px 16px #0009;z-index:9999;text-align:center;">
+                        <h4>✅ Enviado com sucesso!</h4>
+                        <p>O resultado foi enviado para o e-mail informado.</p>
+                        <button onclick="document.getElementById('email-success-popup').style.display='none'" class="btn btn-success">OK</button>
                     </div>
                 </div>
             </div>

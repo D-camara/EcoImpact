@@ -202,6 +202,11 @@
 	margin-bottom: 0.25rem;
 }
 
+.metric-kicker .label-break,
+.chart-label .label-break {
+	display: block;
+}
+
 .metric-value {
 	margin: 0;
 	font-size: 1.45rem;
@@ -419,6 +424,24 @@
 	transform: translateY(-1px);
 }
 
+.email-send-inline {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-left: auto;
+	flex-wrap: wrap;
+	max-width: clamp(320px, 60vw, 460px);
+}
+
+.email-send-inline .form-control {
+	flex: 1 1 220px;
+	min-width: 0;
+}
+
+.email-send-inline .btn {
+	flex: 0 0 auto;
+}
+
 @media (max-width: 1200px) {
 	.resultado-wrapper {
 		grid-template-columns: minmax(0, 1fr);
@@ -463,6 +486,12 @@
 	}
 
 	.action-bar {
+		justify-content: center;
+	}
+
+	.email-send-inline {
+		margin-left: 0;
+		margin-right: 0;
 		justify-content: center;
 	}
 }
