@@ -1,0 +1,560 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Resultado da Simulação - COP-30 EcoImpact{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/simulacao.css' %}">
+    <link rel="stylesheet" href="{% static 'css/resultados.css' %}">
+{% endblock %}
+
+{% block content %}
+    <section class="page-simulacao page-resultado">
+        <div class="container">
+            <header class="simulacao-header resultados-header">
+                <span class="resultados-kicker">Relatório gerado com sucesso</span>
+                <h1 class="display-5">Insights completos para o seu cenário COP-30</h1>
+                <p>Compare o impacto econômico com os efeitos ambientais e entenda rapidamente como o fluxo turístico pressiona a infraestrutura da cidade selecionada.</p>
+            </header>
+
+            <div class="resultado-wrapper">
+                <aside class="resultado-overview">
+                    <article class="info-card destaque-card">
+                        <h3>Resumo da simulação</h3>
+                        <div class="data-badges">
+                            <span class="data-badge">Cidade: {{ parametros.cidades_selecionadas.0 }}</span>
+                            <span class="data-badge">{{ parametros.numero_turistas }} visitantes</span>
+                            <span class="data-badge">{{ parametros.duracao_estadia }} dias</span>
+                        </div>
+                        <dl class="resultado-meta">
+                            <div class="resultado-meta-item">
+                                <dt>Gasto médio diário</dt>
+                                <dd>R$ {{ parametros.gasto_medio|floatformat:2 }}</dd>
+                            </div>
+                            <div class="resultado-meta-item">
+                                <dt>Multiplicador econômico</dt>
+                                <dd>{{ parametros.multiplicador|floatformat:2 }}</dd>
+                            </div>
+                            <div class="resultado-meta-item">
+                                <dt>Água por pessoa</dt>
+                                <dd>{{ parametros.consumo_agua_pessoa|floatformat:2 }} L</dd>
+                            </div>
+                            <div class="resultado-meta-item">
+                                <dt>Lixo por pessoa</dt>
+                                <dd>{{ parametros.producao_lixo_pessoa|floatformat:2 }} kg</dd>
+                            </div>
+                        </dl>
+                    </article>
+
+                    <article class="glass-card insight-card">
+                        <h3>Oportunidades de uso</h3>
+                        <ul class="insight-list">
+                            <li><span class="icon">📈</span><span>Avalie políticas públicas com base no impacto total projetado.</span></li>
+                            <li><span class="icon">💧</span><span>Planeje abastecimento de água conforme a pressão adicional de turistas.</span></li>
+                            <li><span class="icon">♻️</span><span>Dimensione a coleta de resíduos para manter o serviço estável durante o evento.</span></li>
+                        </ul>
+                    </article>
+                </aside>
+
+                <div class="resultado-insights">
+                    <section class="glass-card metric-panel">
+                        <h3>Principais indicadores</h3>
+                        <div class="metric-grid">
+                            {% with max_economico=10000000 %}
+                                {% widthratio resultado.impacto_total max_economico 100 as impacto_percent %}
+                                <article class="metric-card">
+                                    <header>
+                                        <span class="metric-icon">💰</span>
+                                        <div>
+                                            <p class="metric-kicker">Impacto <span class="label-break">econômico</span></p>
+                                            <h4 class="metric-value">R$ {{ resultado.impacto_total|floatformat:2 }}</h4>
+                                        </div>
+                                    </header>
+                                    <div class="metric-bar" aria-hidden="true">
+                                        <span class="metric-bar-fill" style="--metric-fill: {{ impacto_percent }}%;"></span>
+                                    </div>
+                                    <p class="metric-helper">Benchmark adotado: R$ {{ max_economico|floatformat:0 }}</p>
+                                </article>
+                            {% endwith %}
+
+                            {% with max_agua=1000000 %}
+                                {% widthratio resultado.consumo_agua_total max_agua 100 as agua_percent %}
+                                <article class="metric-card">
+                                    <header>
+                                        <span class="metric-icon">💧</span>
+                                        <div>
+                                            <p class="metric-kicker">Consumo total de água</p>
+                                            <h4 class="metric-value">{{ resultado.consumo_agua_total|floatformat:2 }} L</h4>
+                                        </div>
+                                    </header>
+                                    <div class="metric-bar" aria-hidden="true">
+                                        <span class="metric-bar-fill agua" style="--metric-fill: {{ agua_percent }}%;"></span>
+                                    </div>
+                                    <p class="metric-helper">Equivalente a {{ resultado.consumo_agua_total_m3|floatformat:2 }} m³</p>
+                                </article>
+                            {% endwith %}
+
+                            {% with max_lixo=100000 %}
+                                {% widthratio resultado.producao_lixo_total max_lixo 100 as lixo_percent %}
+                                <article class="metric-card">
+                                    <header>
+                                        <span class="metric-icon">🗑️</span>
+                                        <div>
+                                            <p class="metric-kicker">Produção de resíduos</p>
+                                            <h4 class="metric-value">{{ resultado.producao_lixo_total|floatformat:2 }} kg</h4>
+                                        </div>
+                                    </header>
+                                    <div class="metric-bar" aria-hidden="true">
+                                        <span class="metric-bar-fill lixo" style="--metric-fill: {{ lixo_percent }}%;"></span>
+                                    </div>
+                                    <p class="metric-helper">Equivalente a {{ resultado.producao_lixo_total_toneladas|floatformat:2 }} t</p>
+                                </article>
+                            {% endwith %}
+                        </div>
+                    </section>
+
+                    <section class="glass-card chart-panel">
+                        <div class="chart-panel-header">
+                            <h3>Turistas × habitantes</h3>
+                            <p>Visualize a diferença de escala nos principais eixos de pressão urbana.</p>
+                        </div>
+
+                        <article class="chart-card chart-card--wide">
+                            <header>
+                                <span class="chart-label">Impacto <span class="label-break">econômico</span></span>
+                                <span class="chart-badge">R$</span>
+                            </header>
+                            <div class="chart-body chart-body--wide">
+                                <canvas id="economicBar"></canvas>
+                            </div>
+                        </article>
+
+                        <div class="chart-grid chart-grid-duo">
+                            <article class="chart-card chart-card--donut">
+                                <header>
+                                    <span class="chart-label">Consumo de água</span>
+                                    <span class="chart-badge">m³</span>
+                                </header>
+                                <div class="chart-body chart-body--donut">
+                                    <canvas id="waterPie"></canvas>
+                                </div>
+                            </article>
+                            <article class="chart-card chart-card--donut">
+                                <header>
+                                    <span class="chart-label">Produção de resíduos</span>
+                                    <span class="chart-badge">t</span>
+                                </header>
+                                <div class="chart-body chart-body--donut">
+                                    <canvas id="wastePie"></canvas>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="chart-grid chart-grid-trio chart-grid-timeline">
+                            <article class="chart-card chart-card--timeline">
+                                <header>
+                                    <span class="chart-label">Linha do tempo - Impacto econômico</span>
+                                    <span class="chart-badge">R$</span>
+                                </header>
+                                <div class="chart-body chart-body--timeline">
+                                    <canvas id="timelineEconomic"></canvas>
+                                </div>
+                            </article>
+
+                            <article class="chart-card chart-card--timeline">
+                                <header>
+                                    <span class="chart-label">Linha do tempo - Consumo de água</span>
+                                    <span class="chart-badge">m³</span>
+                                </header>
+                                <div class="chart-body chart-body--timeline">
+                                    <canvas id="timelineWater"></canvas>
+                                </div>
+                            </article>
+
+                            <article class="chart-card chart-card--timeline">
+                                <header>
+                                    <span class="chart-label">Linha do tempo - Resíduos gerados</span>
+                                    <span class="chart-badge">t</span>
+                                </header>
+                                <div class="chart-body chart-body--timeline">
+                                    <canvas id="timelineWaste"></canvas>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <div class="action-bar">
+                        <a href="{% url 'simulacao:simular' %}" class="btn btn-simulacao">Realizar nova simulação</a>
+                        <button type="button" class="btn btn-acao-secundaria" onclick="window.print()">Imprimir relatório</button>
+                        <div class="email-send-inline">
+                            <label for="email-result" class="visually-hidden">Receber resultado por e-mail</label>
+                            <input type="email" id="email-result" class="form-control" placeholder="Seu e-mail" required>
+                            <button type="button" class="btn btn-success" id="btn-send-email">Enviar por e-mail</button>
+                        </div>
+                    </div>
+
+                    <div id="email-success-popup" class="popup-success" style="display:none;position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);background:#000;color:#f8f9fa;border-radius:8px;padding:2rem;box-shadow:0 2px 16px #0009;z-index:9999;text-align:center;">
+                        <h4>✅ Enviado com sucesso!</h4>
+                        <p>O resultado foi enviado para o e-mail informado.</p>
+                        <button onclick="document.getElementById('email-success-popup').style.display='none'" class="btn btn-success">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_scripts %}
+    {{ resultado|json_script:"resultado-data" }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Envio de resultado por e-mail
+            const btnSendEmail = document.getElementById('btn-send-email');
+            if (btnSendEmail) {
+                btnSendEmail.addEventListener('click', async () => {
+                    const email = document.getElementById('email-result').value.trim();
+                    if (!email) {
+                        alert('Informe um e-mail válido.');
+                        return;
+                    }
+                    btnSendEmail.disabled = true;
+                    btnSendEmail.textContent = 'Enviando...';
+                    try {
+                        const resultadoData = document.getElementById('resultado-data').textContent;
+                        const response = await fetch('{% url "simulacao:enviar_email_resultado" %}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token }}',
+                            },
+                            body: JSON.stringify({ email, resultado: JSON.parse(resultadoData) })
+                        });
+                        if (response.ok) {
+                            document.getElementById('email-success-popup').style.display = 'block';
+                        } else {
+                            alert('Falha ao enviar e-mail. Tente novamente.');
+                        }
+                    } catch (e) {
+                        alert('Erro ao enviar e-mail.');
+                    }
+                    btnSendEmail.disabled = false;
+                    btnSendEmail.textContent = 'Enviar por e-mail';
+                });
+            }
+            const scriptEl = document.getElementById('resultado-data');
+            if (!scriptEl || typeof Chart === 'undefined') return;
+
+            const dados = JSON.parse(scriptEl.textContent || '{}');
+
+            const formatCurrency = (valor) => `R$ ${valor.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            })}`;
+
+            const formatWithUnit = (valor, unidade) => `${valor.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            })} ${unidade}`;
+
+            const criarGraficoImpactoBarra = ({ canvasId, turistas, habitantes }) => {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+
+                const valores = [Math.max(turistas, 0), Math.max(habitantes, 0)];
+                const total = valores.reduce((acc, val) => acc + val, 0);
+
+                if (total <= 0) {
+                    canvas.parentElement.innerHTML = '<p class="text-muted text-center mb-0">Sem dados suficientes para exibir o gráfico.</p>';
+                    return;
+                }
+
+                new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Turistas', 'Habitantes'],
+                        datasets: [{
+                            label: 'Impacto econômico acumulado',
+                            data: valores,
+                            backgroundColor: ['rgba(52, 211, 153, 0.8)', 'rgba(15, 66, 46, 0.85)'],
+                            borderColor: ['rgba(52, 211, 153, 1)', 'rgba(12, 53, 37, 1)'],
+                            borderWidth: 1,
+                            borderRadius: 12,
+                            maxBarThickness: 48,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback(value) {
+                                        return formatCurrency(value);
+                                    },
+                                },
+                                grid: {
+                                    color: 'rgba(148, 163, 184, 0.18)',
+                                },
+                            },
+                            y: {
+                                grid: {
+                                    display: false,
+                                },
+                                ticks: {
+                                    color: 'rgba(226, 232, 240, 0.75)',
+                                },
+                            },
+                        },
+                        plugins: {
+                            legend: {
+                                display: false,
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label(context) {
+                                        const valor = context.raw || 0;
+                                        return `${context.label}: ${formatCurrency(valor)}`;
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            };
+
+            const criarPizzaComparativa = ({ canvasId, turistas, habitantes, cores, formatter }) => {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+
+                const valores = [Math.max(turistas, 0), Math.max(habitantes, 0)];
+                const total = valores.reduce((acc, val) => acc + val, 0);
+
+                if (total <= 0) {
+                    canvas.parentElement.innerHTML = '<p class="text-muted text-center mb-0">Sem dados suficientes para exibir o gráfico.</p>';
+                    return;
+                }
+
+                new Chart(canvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Turistas', 'Habitantes'],
+                        datasets: [{
+                            data: valores,
+                            backgroundColor: cores,
+                            hoverOffset: 14,
+                            borderWidth: 1,
+                            borderColor: '#2125290d',
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '55%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                },
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label(context) {
+                                        const valor = context.raw || 0;
+                                        const percent = total > 0 ? (valor / total) * 100 : 0;
+                                        return `${context.label}: ${formatter(valor)} (${percent.toFixed(1)}%)`;
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            };
+
+            criarGraficoImpactoBarra({
+                canvasId: 'economicBar',
+                turistas: dados.impacto_total || 0,
+                habitantes: dados.impacto_residentes || 0,
+            });
+
+            criarPizzaComparativa({
+                canvasId: 'waterPie',
+                turistas: (dados.consumo_agua_total || 0) / 1000, // em m³
+                habitantes: (dados.consumo_agua_residentes || 0) / 1000,
+                cores: ['#0d6efd', '#051a44'],
+                formatter: (valor) => formatWithUnit(valor, 'm³'),
+            });
+
+            criarPizzaComparativa({
+                canvasId: 'wastePie',
+                turistas: (dados.producao_lixo_total || 0) / 1000, // em toneladas
+                habitantes: (dados.lixo_residentes || 0) / 1000,
+                cores: ['#ffc107', '#a66300'],
+                formatter: (valor) => formatWithUnit(valor, 't'),
+            });
+
+            const renderTimelineChart = ({
+                canvasId,
+                labels,
+                data,
+                label,
+                borderColor,
+                backgroundColor,
+                formatter,
+                tickFormatter,
+            }) => {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+
+                const total = data.reduce((acc, valor) => acc + Number(valor || 0), 0);
+                if (total <= 0) {
+                    canvas.parentElement.innerHTML = '<p class="text-muted text-center mb-0">Sem dados suficientes para exibir o gráfico.</p>';
+                    return;
+                }
+
+                new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label,
+                                data,
+                                borderColor,
+                                backgroundColor,
+                                fill: true,
+                                tension: 0.35,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(148, 163, 184, 0.14)',
+                                },
+                                ticks: {
+                                    callback(value) {
+                                        if (typeof tickFormatter === 'function') {
+                                            return tickFormatter(value);
+                                        }
+                                        return value.toLocaleString('pt-BR', {
+                                            minimumFractionDigits: 0,
+                                            maximumFractionDigits: 0,
+                                        });
+                                    },
+                                    color: 'rgba(226, 232, 240, 0.75)',
+                                },
+                            },
+                            x: {
+                                grid: {
+                                    display: false,
+                                },
+                                ticks: {
+                                    color: 'rgba(226, 232, 240, 0.75)',
+                                },
+                            },
+                        },
+                        plugins: {
+                            legend: {
+                                display: false,
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label(context) {
+                                        const valor = context.raw || 0;
+                                        if (typeof formatter === 'function') {
+                                            return formatter(valor);
+                                        }
+                                        return valor.toLocaleString('pt-BR', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2,
+                                        });
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            };
+
+            const criarLinhaDoTempo = () => {
+                const canvasIds = ['timelineEconomic', 'timelineWater', 'timelineWaste'];
+                const preencherAviso = (mensagem) => {
+                    canvasIds.forEach((id) => {
+                        const canvas = document.getElementById(id);
+                        if (canvas) {
+                            canvas.parentElement.innerHTML = `<p class="text-muted text-center mb-0">${mensagem}</p>`;
+                        }
+                    });
+                };
+
+                const diasEvento = Math.max(1, Number(dados.duracao_estadia || dados.parametros?.duracao_estadia || 0));
+                const impactoTotal = Number(dados.impacto_total || 0);
+                const aguaTotal = Number(dados.consumo_agua_total_m3 || ((dados.consumo_agua_total || 0) / 1000));
+                const lixoTotal = Number(dados.producao_lixo_total_toneladas || ((dados.producao_lixo_total || 0) / 1000));
+
+                if (diasEvento <= 1) {
+                    preencherAviso('Simulação muito curta para linha do tempo detalhada.');
+                    return;
+                }
+
+                const pesos = Array.from({ length: diasEvento }, (_, indice) => {
+                    if (diasEvento === 1) return 1;
+                    const proporcao = indice / (diasEvento - 1);
+                    return 0.6 + 0.4 * Math.sin(proporcao * Math.PI);
+                });
+
+                const somaPesos = pesos.reduce((acc, peso) => acc + peso, 0);
+                const normalizar = (total) => pesos.map(peso => (total * peso) / somaPesos);
+
+                const impactoDiario = normalizar(impactoTotal);
+                const aguaDiaria = normalizar(aguaTotal);
+                const lixoDiario = normalizar(lixoTotal);
+
+                const labels = Array.from({ length: diasEvento }, (_, indice) => `Dia ${indice + 1}`);
+
+                renderTimelineChart({
+                    canvasId: 'timelineEconomic',
+                    labels,
+                    data: impactoDiario,
+                    label: 'Impacto econômico',
+                    borderColor: 'rgba(52, 211, 153, 0.9)',
+                    backgroundColor: 'rgba(52, 211, 153, 0.18)',
+                    formatter: (valor) => `Impacto econômico: ${formatCurrency(valor)}`,
+                    tickFormatter: (valor) => formatCurrency(valor),
+                });
+
+                renderTimelineChart({
+                    canvasId: 'timelineWater',
+                    labels,
+                    data: aguaDiaria,
+                    label: 'Consumo de água',
+                    borderColor: 'rgba(14, 165, 233, 0.9)',
+                    backgroundColor: 'rgba(14, 165, 233, 0.18)',
+                    formatter: (valor) => `Consumo de água: ${formatWithUnit(valor, 'm³')}`,
+                    tickFormatter: (valor) => formatWithUnit(valor, 'm³'),
+                });
+
+                renderTimelineChart({
+                    canvasId: 'timelineWaste',
+                    labels,
+                    data: lixoDiario,
+                    label: 'Resíduos gerados',
+                    borderColor: 'rgba(250, 204, 21, 0.85)',
+                    backgroundColor: 'rgba(250, 204, 21, 0.16)',
+                    formatter: (valor) => `Resíduos gerados: ${formatWithUnit(valor, 't')}`,
+                    tickFormatter: (valor) => formatWithUnit(valor, 't'),
+                });
+            };
+
+            criarLinhaDoTempo();
+        });
+    </script>
+{% endblock %}

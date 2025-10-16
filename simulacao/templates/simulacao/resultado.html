@@ -1,41 +1,146 @@
-{% extends 'base.html' %}
-{% block title %}Resultado - EcoImpact{% endblock %}
-{% block content %}
-<h2>Resultado da Simulação</h2>
-{% if resultado %}
-	<section>
-		<h3>Resumo</h3>
-		<ul>
-			<li><strong>Cenário:</strong> {{ resultado.cenario|title }}</li>
-			<li><strong>Número de turistas:</strong> {{ resultado.numero_turistas }}</li>
-			<li><strong>Duração (dias):</strong> {{ resultado.duracao_estadia }}</li>
-			<li><strong>Gasto médio (R$):</strong> {{ resultado.gasto_medio }}</li>
-			<li><strong>Impacto Total (R$):</strong> {{ resultado.impacto_total }}</li>
-			<li><strong>Gasto Total (R$):</strong> {{ resultado.gasto_total }}</li>
-			<li><strong>Gasto Ajustado (R$):</strong> {{ resultado.gasto_total_ajustado }}</li>
-			<li><strong>Multiplicador:</strong> {{ resultado.multiplicador }}</li>
-			<li><strong>Ajuste Cidades:</strong> {{ resultado.ajuste_cidades }}</li>
-			<li><strong>Fator Duração:</strong> {{ resultado.fator_duracao }}</li>
-			<li><strong>Nº Cidades:</strong> {{ resultado.n_cidades }}</li>
-		</ul>
-	</section>
-	<section>
-		<h3>Impacto por Cidade</h3>
-		<table border="1" cellpadding="4" cellspacing="0">
-			<thead><tr><th>Cidade</th><th>Impacto (R$)</th></tr></thead>
-			<tbody>
-				{% for nome, valor in resultado.impacto_por_cidade.items %}
-					<tr><td>{{ nome }}</td><td>{{ valor }}</td></tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</section>
-	<section>
-		<h3>Parâmetros Enviados</h3>
-		<pre style="background:#f5f5f5;padding:8px;">{{ params|safe|json_script:"params-json" }}</pre>
-	</section>
-{% else %}
-	<p>Nenhum resultado disponível.</p>
-{% endif %}
-<p style="margin-top:1rem;"><a href="{% url 'simular' %}">Nova simulação</a></p>
-{% endblock %}
+{% load static %}
+<!DOCTYPE html>
+<htm                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <h5 class="card-title mb-3 text-success">📊 Impacto Econômico</h5>
+                                <div style="height: 300px;">
+                                    <canvas id="economicChart"></canvas>
+                                </div>"pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado da Simulação - COP-30 EcoImpact</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Dados da simulação para JavaScript -->
+    <script>
+        window.impactoTotal = {{ resultado.impacto_economico_total|floatformat:0 }};
+        window.aguaTotal = {{ resultado.agua_total|floatformat:0 }};
+        window.lixoTotal = {{ resultado.lixo_total|floatformat:1 }};
+        console.log('Dados carregados no window:', { 
+            impactoTotal: window.impactoTotal, 
+            aguaTotal: window.aguaTotal, 
+            lixoTotal: window.lixoTotal 
+        });
+    </script>
+</head>
+<body>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-11">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <h2 class="h3 text-success fw-bold mb-3">
+                        🌱 Resultado da Simulação COP-30
+                    </h2>
+                    <p class="text-muted">
+                        Impacto estimado para {{ resultado.total_turistas|floatformat:0 }} turistas
+                        em {{ resultado.cidades_analisadas|length }} cidade{{ resultado.cidades_analisadas|length|pluralize }}
+                    </p>
+                </div>
+
+                <!-- Gráficos Principais -->
+                <div class="row g-4 mb-5">
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <h5 class="card-title mb-3 text-success">� Impacto Econômico</h5>
+                                <div style="height: 300px;">
+                                    <canvas id="economicChart"></canvas>
+                                </div>
+                                <div class="text-center mt-3">
+                                    <h4 class="fw-bold text-success">
+                                        R$ {{ resultado.impacto_economico_total|floatformat:0 }}
+                                    </h4>
+                                    <small class="text-muted">Total estimado</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <h5 class="card-title mb-3 text-primary">📊 Impacto Ambiental</h5>
+                                <div style="height: 300px;">
+                                    <canvas id="environmentChart"></canvas>
+                                </div>
+                                <div class="text-center mt-3 row">
+                                    <div class="col-6">
+                                        <strong class="text-primary">{{ resultado.agua_total|floatformat:0 }} m³</strong><br>
+                                        <small class="text-muted">Água</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong class="text-warning">{{ resultado.lixo_total|floatformat:1 }} ton</strong><br>
+                                        <small class="text-muted">Lixo</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalhamento por Cidade -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-4">🏙️ Detalhamento por Cidade</h5>
+                        <div class="row g-3">
+                            {% for cidade_info in resultado.detalhes_cidades %}
+                            <div class="col-lg-6">
+                                <div class="border rounded p-3 bg-light">
+                                    <h6 class="fw-bold text-dark mb-3">{{ cidade_info.nome }}</h6>
+                                    
+                                    <div class="row g-2 text-sm">
+                                        <div class="col-6">
+                                            <small class="text-muted">População:</small><br>
+                                            <strong>{{ cidade_info.populacao|floatformat:0 }} hab</strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Turistas:</small><br>
+                                            <strong>{{ cidade_info.turistas|floatformat:0 }}</strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Impacto Econ.:</small><br>
+                                            <strong class="text-success">R$ {{ cidade_info.impacto_economico|floatformat:0 }}</strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Água:</small><br>
+                                            <strong class="text-primary">{{ cidade_info.agua|floatformat:0 }} m³</strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Lixo:</small><br>
+                                            <strong class="text-warning">{{ cidade_info.lixo|floatformat:1 }} ton</strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">PIB per capita:</small><br>
+                                            <strong>R$ {{ cidade_info.pib_per_capita|floatformat:0 }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="text-center">
+                    <a href="{% url 'simulacao:simular' %}" class="btn btn-primary btn-lg me-3">
+                        🔄 Nova Simulação
+                    </a>
+                    <button onclick="window.print()" class="btn btn-outline-secondary btn-lg">
+                        🖨️ Imprimir Relatório
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/simulador.js' %}"></script>
+</body>
+</html>

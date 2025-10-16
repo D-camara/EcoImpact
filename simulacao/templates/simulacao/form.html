@@ -1,31 +1,176 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Simulação - EcoImpact{% endblock %}
+{% block title %}Simulação de Impacto Econômico{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/simulacao.css' %}">
+{% endblock %}
+
 {% block content %}
-<h2>Nova Simulação</h2>
-{% if erro %}
-  <div style="color:#b00;font-weight:bold;">Erro: {{ erro }}</div>
-{% endif %}
-<form method="post" novalidate>
-  {% csrf_token %}
-  <fieldset>
-    {{ form.non_field_errors }}
-    {{ form.cidade_principal.errors }}
-    <label>{{ form.cidade_principal.label }}<br>{{ form.cidade_principal }}</label><br>
-    <label>{{ form.numero_turistas.label }}<br>{{ form.numero_turistas }}</label><br>
-    <label>{{ form.gasto_medio.label }}<br>{{ form.gasto_medio }}</label><br>
-    <label>{{ form.duracao_estadia.label }}<br>{{ form.duracao_estadia }}</label><br>
-    <label>{{ form.cidades_visitadas.label }}<br>{{ form.cidades_visitadas }}<br>
-      <small>{{ form.cidades_visitadas.help_text }}</small>
-    </label><br>
-    <label>{{ form.cenario.label }}<br>{{ form.cenario }}</label><br>
-    <label>{{ form.multiplicador.label }}<br>{{ form.multiplicador }}<br>
-      <small>{{ form.multiplicador.help_text }}</small>
-    </label>
-  </fieldset>
-  <button type="submit">Calcular Impacto</button>
-</form>
-<p style="margin-top:1rem;">
-  <strong>Dica:</strong> deixe Multiplicador vazio para usar o cenário selecionado.
-</p>
+<section class="page-simulacao">
+  <div class="container">
+    <div class="simulacao-header">
+      <h1 class="display-5">Projete o impacto real do seu evento</h1>
+      <p>Preencha os parâmetros chave da COP-30 e veja projeções econômicas, consumo de recursos naturais e sinais de pressão sobre a infraestrutura urbana na cidade escolhida.</p>
+    </div>
+
+    <div class="simulacao-wrapper">
+      <aside class="info-panel" aria-label="Resumo da simulação">
+        <article class="info-card">
+          <h3>📊 Cenários orientados a dados</h3>
+          <div class="benefits-list">
+            <div class="benefits-item">
+              <span class="icon">💡</span>
+              <div>
+                <strong>Economia local</strong>
+                <p class="mb-0">Identifique o efeito multiplicador considerando estadia média, gasto diário e número de visitantes.</p>
+              </div>
+            </div>
+            <div class="benefits-item">
+              <span class="icon">🌎</span>
+              <div>
+                <strong>Pressão ambiental</strong>
+                <p class="mb-0">Acompanhe consumo agregado de água e produção de resíduos por período do evento.</p>
+              </div>
+            </div>
+            <div class="benefits-item">
+              <span class="icon">🏘️</span>
+              <div>
+                <strong>População residente</strong>
+                <p class="mb-0">Compare o fluxo turístico com a base populacional da cidade selecionada.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="info-card">
+          <h3>✅ Dicas para resultados confiáveis</h3>
+          <div class="benefits-list">
+            <div class="benefits-item">
+              <span class="icon">📈</span>
+              <div>
+                <strong>Utilize estimativas recentes</strong>
+                <p class="mb-0">Para cidades amazônicas, combine dados de turismo com eventos sazonais e capacidade hoteleira.</p>
+              </div>
+            </div>
+            <div class="benefits-item">
+              <span class="icon">🔁</span>
+              <div>
+                <strong>Explore diferentes multiplicadores</strong>
+                <p class="mb-0">Teste cenários conservadores e expansivos para construir uma banda de resultados.</p>
+              </div>
+            </div>
+            <div class="benefits-item">
+              <span class="icon">📝</span>
+              <div>
+                <strong>Documente premissas</strong>
+                <p class="mb-0">Registre as hipóteses adotadas para compartilhar com a equipe e stakeholders.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </aside>
+
+      <form id="simulationForm" class="simulacao-form" method="post" novalidate aria-label="Formulário de simulação">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger mb-3">
+            {% for error in form.non_field_errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="form-section">
+          <h4>Seleção de cidade</h4>
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-uppercase small" for="{{ form.cidade_selecionada.id_for_label }}">Cidade sede</label>
+            {{ form.cidade_selecionada }}
+            {% for error in form.cidade_selecionada.errors %}
+              <div class="text-warning small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>Fluxo de visitantes</h4>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.numero_visitantes.id_for_label }}">{{ form.numero_visitantes.label }}</label>
+                {{ form.numero_visitantes }}
+              </div>
+              {% for error in form.numero_visitantes.errors %}
+                <div class="text-warning small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.duracao_evento.id_for_label }}">{{ form.duracao_evento.label }}</label>
+                {{ form.duracao_evento }}
+              </div>
+              {% for error in form.duracao_evento.errors %}
+                <div class="text-warning small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>Economia</h4>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.gasto_medio_diario.id_for_label }}">{{ form.gasto_medio_diario.label }}</label>
+                {{ form.gasto_medio_diario }}
+              </div>
+              {% for error in form.gasto_medio_diario.errors %}
+                <div class="text-warning small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.multiplicador.id_for_label }}">{{ form.multiplicador.label }}</label>
+                {{ form.multiplicador }}
+              </div>
+              {% for error in form.multiplicador.errors %}
+                <div class="text-warning small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>Sustentabilidade</h4>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.lixo_gerado_por_pessoa.id_for_label }}">Lixo Gerado por Pessoa<br><span class="label-break-inline">(kg/dia)</span></label>
+                {{ form.lixo_gerado_por_pessoa }}
+              </div>
+              {% for error in form.lixo_gerado_por_pessoa.errors %}
+                <div class="text-warning small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.agua_consumida_por_pessoa.id_for_label }}">{{ form.agua_consumida_por_pessoa.label }}</label>
+                {{ form.agua_consumida_por_pessoa }}
+              </div>
+              {% for error in form.agua_consumida_por_pessoa.errors %}
+                <div class="text-warning small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-simulacao w-100 mt-3">
+          <span class="me-2">🚀</span>Simular impacto completo
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
 {% endblock %}

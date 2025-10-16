@@ -4,68 +4,102 @@ from django import forms
 from .models import Cidade
 
 
+class CityCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
+    """Widget customizado para exibir cidades com informações detalhadas"""
+    
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+        
+        if value:
+            try:
+                cidade = Cidade.objects.get(pk=value.value)
+                option['data'] = {
+                    'populacao': cidade.populacao,
+                    'pib_per_capita': cidade.pib_per_capita
+                }
+            except Cidade.DoesNotExist:
+                option['data'] = {
+                    'populacao': 0,
+                    'pib_per_capita': 0
+                }
+        
+        return option
+
+
 class SimulacaoForm(forms.Form):
-    cidade_principal = forms.ModelChoiceField(queryset=Cidade.objects.all(), required=True, label="Cidade principal")
-    numero_turistas = forms.IntegerField(min_value=1, initial=100, label="Número de turistas")
-    gasto_medio = forms.DecimalField(min_value=0, decimal_places=2, max_digits=12, initial=250, label="Gasto médio por dia (R$)")
-    duracao_estadia = forms.IntegerField(min_value=1, initial=3, label="Duração (dias)")
-    cidades_visitadas = forms.CharField(required=False, label="Outras cidades (separar por vírgula)", help_text="Ex: Belém, Santarém")
-    cenario = forms.ChoiceField(choices=[('conservador','Conservador'),('realista','Realista'),('otimista','Otimista')], initial='realista')
-    multiplicador = forms.DecimalField(required=False, min_value=0, decimal_places=4, max_digits=8, label="Multiplicador custom (opcional)", help_text="Deixe em branco para usar cenário")
+    """Formulário para simulação de impacto econômico da COP 30"""
+    
+    # Campo para seleção de cidades do banco de dados
+    cidade_selecionada = forms.ModelChoiceField(
+        queryset=Cidade.objects.all().order_by('nome'),
+        widget=forms.Select(attrs={
+            'class': 'form-select h-12 text-base border-2 border-success/30',
+        }),
+        label="Cidade Sede do Evento",
+        help_text="Escolha a cidade que sediará o evento COP-30",
+        required=True
+    )
 
-    def limpar_lista_cidades(self):
-        raw = self.cleaned_data.get('cidades_visitadas') or ''
-        partes = [p.strip() for p in raw.split(',') if p.strip()]
-        # Remove duplicadas preservando ordem
-        seen = set()
-        dedup = []
-        for p in partes:
-            low = p.lower()
-            if low not in seen:
-                seen.add(low)
-                dedup.append(p)
-        return dedup
+    numero_visitantes = forms.IntegerField(
+        initial=50000,
+        label="Número de Visitantes",
+        help_text="Quantidade estimada de visitantes",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control h-11',
+            'placeholder': '50000'
+        })
+    )
 
-    def clean_numero_turistas(self):
-        v = self.cleaned_data['numero_turistas']
-        if v > 50_000_000:
-            raise forms.ValidationError("Número de turistas muito alto (limite 50 milhões).")
-        return v
+    gasto_medio_diario = forms.FloatField(
+        initial=250,
+        label="Gasto Médio Diário (R$)",
+        help_text="Valor médio gasto por pessoa/dia",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control h-11',
+            'placeholder': '250',
+            'step': '0.01'
+        })
+    )
 
-    def clean_gasto_medio(self):
-        v = self.cleaned_data['gasto_medio']
-        # Exemplo de limite plausível: R$ 100.000 por dia
-        if v > 100_000:
-            raise forms.ValidationError("Gasto médio por dia acima do limite permitido (100.000).")
-        return v
+    duracao_evento = forms.IntegerField(
+        initial=10,
+        label="Duração do Evento (dias)",
+        help_text="Número de dias do evento",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control h-11',
+            'placeholder': '10'
+        })
+    )
 
-    def clean_cidades_visitadas(self):
-        raw = self.cleaned_data.get('cidades_visitadas') or ''
-        # Apenas valida duplicidade explícita (ex: Belém, belém)
-        partes = [p.strip() for p in raw.split(',') if p.strip()]
-        lowered = [p.lower() for p in partes]
-        if len(set(lowered)) != len(lowered):
-            raise forms.ValidationError("Lista contém cidades repetidas.")
-        return raw
+    multiplicador = forms.FloatField(
+        initial=2.5,
+        label="Multiplicador Econômico",
+        help_text="Fator multiplicador do impacto econômico (ex: 2.5)",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control h-11',
+            'placeholder': '2.5',
+            'step': '0.01'
+        })
+    )
 
-    def build_parametros(self):
-        if not self.is_valid():
-            raise ValueError("Form inválido")
-        lista = self.limpar_lista_cidades()
-        principal = self.cleaned_data['cidade_principal'].nome
-        if not lista:
-            lista = [principal]
-        else:
-            if principal not in lista:
-                lista.insert(0, principal)
-        params = {
-            'numero_turistas': self.cleaned_data['numero_turistas'],
-            'gasto_medio': float(self.cleaned_data['gasto_medio']),
-            'duracao_estadia': self.cleaned_data['duracao_estadia'],
-            'cidades_visitadas': lista,
-            'cenario': self.cleaned_data['cenario']
-        }
-        mult = self.cleaned_data.get('multiplicador')
-        if mult is not None:
-            params['multiplicador'] = float(mult)
-        return params
+    lixo_gerado_por_pessoa = forms.FloatField(
+        initial=2.5,
+        label="Lixo Gerado por Pessoa (kg/dia)",
+        help_text="Quantidade média de lixo gerado por pessoa por dia",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control h-11',
+            'placeholder': '2.5',
+            'step': '0.01'
+        })
+    )
+
+    agua_consumida_por_pessoa = forms.FloatField(
+        initial=150.0,
+        label="Água Consumida por Pessoa (litros/dia)",
+        help_text="Quantidade média de água consumida por pessoa por dia",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control h-11',
+            'placeholder': '150',
+            'step': '0.01'
+        })
+    )
